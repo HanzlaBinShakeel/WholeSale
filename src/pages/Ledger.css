@@ -1,0 +1,206 @@
+/* ═══ LEDGER PAGE - Professional & Clean ═══ */
+
+.ledger-page {
+  padding: var(--space-6) 0;
+  padding-bottom: calc(var(--space-8) + var(--safe-bottom));
+}
+
+.ledger-summary-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .ledger-summary-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.summary-card {
+  background: var(--color-card);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.summary-icon {
+  font-size: 2rem;
+  opacity: 0.8;
+}
+
+.summary-content h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+  letter-spacing: -0.02em;
+}
+
+.summary-content p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.summary-card.total-billed .summary-content h3 {
+  color: var(--color-primary);
+}
+
+.summary-card.total-paid .summary-content h3 {
+  color: var(--color-success);
+}
+
+.summary-card.pending .summary-content h3 {
+  color: var(--color-warning);
+}
+
+.ledger-table-container {
+  background: var(--color-card);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.table-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.ledger-table-wrapper {
+  overflow-x: auto;
+}
+
+.ledger-table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ledger-table thead {
+  background: var(--color-bg);
+}
+
+.ledger-table th {
+  padding: var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ledger-table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.ledger-table tbody tr:hover {
+  background: var(--color-bg);
+}
+
+.ledger-row {
+  transition: var(--transition-fast);
+}
+
+.type-badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ledger-type-bill {
+  background: rgba(15, 76, 129, 0.12);
+  color: var(--color-primary);
+}
+
+.ledger-type-payment {
+  background: rgba(13, 148, 136, 0.12);
+  color: var(--color-success);
+}
+
+.ledger-type-adjustment {
+  background: rgba(217, 119, 6, 0.12);
+  color: var(--color-warning);
+}
+
+.amount.debit {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.amount.credit {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.amount.adjustment {
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+.order-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.order-link:hover {
+  text-decoration: underline;
+}
+
+.no-data {
+  text-align: center;
+  padding: var(--space-12);
+  color: var(--color-text-muted);
+}
+
+.payment-info-card {
+  margin-top: var(--space-6);
+  padding: var(--space-6);
+  background: var(--color-bg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
+}
+
+.payment-info-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.payment-item {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+.payment-item strong {
+  color: var(--color-text-primary);
+  margin-right: var(--space-2);
+}

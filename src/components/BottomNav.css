@@ -1,0 +1,104 @@
+/* ═══ BOTTOM NAV - Mobile App Style ═══ */
+/* Only visible on mobile for native app feel */
+
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding-bottom: var(--safe-bottom);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--color-border-light);
+  box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 1023px) {
+  .bottom-nav {
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bottom-nav {
+    display: none;
+  }
+}
+
+.bottom-nav-inner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  min-width: 64px;
+  min-height: 56px;
+  text-decoration: none;
+  color: var(--color-text-muted);
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: var(--radius-lg);
+}
+
+.bottom-nav-item:hover {
+  color: var(--color-primary);
+}
+
+.bottom-nav-item.active {
+  color: var(--color-primary);
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.bottom-nav-icon {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.375rem;
+  border-radius: var(--radius-lg);
+  transition: all 0.2s ease;
+}
+
+.bottom-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-nav-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

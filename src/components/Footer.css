@@ -1,0 +1,84 @@
+/* ═══ FOOTER - Elegant & Clean ═══ */
+
+.app-footer {
+  background: linear-gradient(180deg, #0C4A6E 0%, #020617 100%);
+  color: white;
+  padding: var(--space-12) 0 var(--space-6);
+  padding-bottom: calc(var(--space-6) + var(--safe-bottom));
+  margin-top: auto;
+  position: relative;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-10);
+  margin-bottom: var(--space-10);
+}
+
+@media (min-width: 640px) {
+  .footer-content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer-content {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-10);
+  }
+}
+
+.footer-section h3 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.footer-section h4 {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.footer-section p {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.7;
+  font-size: 0.9375rem;
+  margin-bottom: var(--space-2);
+}
+
+.footer-section ul {
+  list-style: none;
+}
+
+.footer-section ul li {
+  margin-bottom: var(--space-2);
+}
+
+.footer-section ul li a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  display: inline-block;
+  font-size: 0.9375rem;
+}
+
+.footer-section ul li a:hover {
+  color: white;
+  transform: translateX(4px);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: var(--space-6);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.875rem;
+}
