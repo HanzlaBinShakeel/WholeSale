@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { useNotification } from '../../context/NotificationContext'
 import './Admin.css'
 
-const categories = ['Saafa', 'Odhna', 'Rajputi Suit', 'Rajputi Jod', 'Bandhej items']
+const categories = [
+  { value: 'saafa', label: 'Saafa' },
+  { value: 'odhna', label: 'Odhna' },
+  { value: 'rajputi-suit', label: 'Rajputi Suit' },
+  { value: 'rajputi-jod', label: 'Rajputi Jod' },
+  { value: 'bandhej', label: 'Bandhej' }
+]
 const subCategories = ['Wedding', 'Daily', 'Premium']
 const stockStatuses = ['available', 'limited', 'out-of-stock']
 
@@ -152,6 +158,18 @@ function AdminProducts() {
     }
   }
 
+  const handleImageUpload = (e) => {
+    const files = e.target.files
+    if (!files?.length) return
+    Array.from(files).forEach(file => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        setFormData(prev => ({ ...prev, images: [...prev.images, reader.result] }))
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
   return (
     <div className="admin-page">
       <div className="container">
@@ -203,7 +221,7 @@ function AdminProducts() {
                   >
                     <option value="">Select category</option>
                     {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat.value} value={cat.value}>{cat.label}</option>
                     ))}
                   </select>
                 </div>
@@ -305,7 +323,20 @@ function AdminProducts() {
               </div>
 
               <div className="form-group">
-                <label>Product Images</label>
+                <label>Product Images (upload from storage or add URL)</label>
+                <div className="image-upload-actions">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="image-upload-input"
+                    id="product-images"
+                  />
+                  <label htmlFor="product-images" className="btn-secondary small upload-btn-label">
+                    📁 Upload from Storage
+                  </label>
+                </div>
                 <div className="images-list">
                   {formData.images.map((img, idx) => (
                     <div key={idx} className="image-preview">

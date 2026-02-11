@@ -9,8 +9,16 @@ const PROMOS = [
 ]
 
 function TopBanner() {
-  const [dismissed, setDismissed] = useState(false)
-  if (dismissed) return null
+  const [visible, setVisible] = useState(true)
+
+  React.useEffect(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem('adminSections') || '{}')
+      if (s.topBanner === false) setVisible(false)
+    } catch (e) {}
+  }, [])
+
+  if (!visible) return null
 
   return (
     <div className="top-banner">
@@ -34,13 +42,6 @@ function TopBanner() {
         <Link to="/products" className="top-banner-cta">
           Shop Now
         </Link>
-        <button
-          className="top-banner-close"
-          onClick={() => setDismissed(true)}
-          aria-label="Close banner"
-        >
-          ×
-        </button>
       </div>
     </div>
   )

@@ -4,17 +4,17 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Premium Color Palette */
-  --color-primary: #0C4A6E;
-  --color-primary-light: #0E7490;
-  --color-primary-dark: #082F49;
-  --color-primary-soft: rgba(12, 74, 110, 0.08);
-  --color-primary-glow: rgba(12, 74, 110, 0.15);
-  --color-accent: #B45309;
-  --color-accent-light: #D97706;
-  --color-accent-soft: rgba(180, 83, 9, 0.1);
+  /* Premium Color Palette - Fresh E-commerce (Teal/Orange) */
+  --color-primary: #0D9488;
+  --color-primary-light: #14B8A6;
+  --color-primary-dark: #0F766E;
+  --color-primary-soft: rgba(13, 148, 136, 0.08);
+  --color-primary-glow: rgba(13, 148, 136, 0.15);
+  --color-accent: #EA580C;
+  --color-accent-light: #F97316;
+  --color-accent-soft: rgba(234, 88, 12, 0.1);
   --color-success: #047857;
-  --color-warning: #B45309;
+  --color-warning: #EA580C;
   --color-error: #B91C1C;
   --color-info: #0369A1;
   
@@ -330,12 +330,12 @@ body::before {
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
-  box-shadow: 0 2px 8px rgba(12, 74, 110, 0.25);
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(12, 74, 110, 0.35);
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.35);
 }
 
 .btn-primary:active {

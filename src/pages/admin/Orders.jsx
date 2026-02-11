@@ -160,6 +160,14 @@ function AdminOrders() {
                     <span>Total: ₹{order.total?.toLocaleString('en-IN') || '0'}</span>
                   </div>
                   <div className="order-actions-admin">
+                    {order.status === 'received' && (
+                      <button
+                        className="btn-success small"
+                        onClick={() => updateOrderStatus(order.id, 'packed', 'Order approved')}
+                      >
+                        Approve Order
+                      </button>
+                    )}
                     <button
                       className="btn-primary small"
                       onClick={() => setSelectedOrder(order)}

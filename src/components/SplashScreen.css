@@ -3,7 +3,7 @@
 .splash-screen {
   position: fixed;
   inset: 0;
-  background: linear-gradient(160deg, #0C4A6E 0%, #0F172A 40%, #082F49 100%);
+  background: linear-gradient(160deg, var(--color-primary) 0%, #0F172A 40%, var(--color-primary-dark) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,7 +118,7 @@
 .logo-text {
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #0C4A6E 0%, #B45309 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -140,7 +140,7 @@
 
 .product-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 48px rgba(12, 74, 110, 0.12);
+  box-shadow: 0 16px 48px rgba(13, 148, 136, 0.12);
 }
 
 .product-card-tags {

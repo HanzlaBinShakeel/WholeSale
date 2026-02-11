@@ -2,7 +2,7 @@
 
 .top-banner {
   position: relative;
-  background: linear-gradient(90deg, #0C4A6E 0%, #0E7490 25%, #B45309 50%, #0E7490 75%, #0C4A6E 100%);
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 25%, var(--color-accent) 50%, var(--color-primary-light) 75%, var(--color-primary) 100%);
   background-size: 200% 100%;
   animation: banner-gradient-flow 8s ease infinite;
   overflow: hidden;
@@ -109,28 +109,6 @@
 @keyframes banner-cta-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
   50% { box-shadow: 0 0 0 6px rgba(255,255,255,0); }
-}
-
-.top-banner-close {
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: rgba(255,255,255,0.2);
-  color: white;
-  font-size: 1.25rem;
-  line-height: 1;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s var(--ease-out);
-}
-
-.top-banner-close:hover {
-  background: rgba(255,255,255,0.35);
-  transform: scale(1.1);
 }
 
 @media (max-width: 640px) {

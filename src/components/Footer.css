@@ -1,7 +1,7 @@
 /* ═══ FOOTER - Elegant & Clean ═══ */
 
 .app-footer {
-  background: linear-gradient(180deg, #0C4A6E 0%, #020617 100%);
+  background: linear-gradient(180deg, var(--color-primary) 0%, #020617 100%);
   color: white;
   padding: var(--space-12) 0 var(--space-6);
   padding-bottom: calc(var(--space-6) + var(--safe-bottom));

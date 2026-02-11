@@ -1,7 +1,7 @@
 /* ═══ HEADER - Professional & Elegant ═══ */
 
 .app-header {
-  background: linear-gradient(180deg, #0F172A 0%, #0C4A6E 100%);
+  background: linear-gradient(180deg, #0F172A 0%, var(--color-primary) 100%);
   color: white;
   padding: var(--space-3) 0;
   padding-top: calc(var(--space-3) + var(--safe-top));

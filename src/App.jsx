@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
@@ -12,11 +12,14 @@ import Cart from './pages/Cart'
 import Login from './pages/Login'
 import Orders from './pages/Orders'
 import Ledger from './pages/Ledger'
+import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
 import AdminOrders from './pages/admin/Orders'
 import AdminUsers from './pages/admin/Users'
 import AdminPayments from './pages/admin/Payments'
+import AdminBanners from './pages/admin/Banners'
+import AdminSections from './pages/admin/Sections'
 
 // Components
 import TopBanner from './components/TopBanner'
@@ -30,6 +33,8 @@ import './App.css'
 
 function App() {
   const [showSplash, setShowSplash] = useState(true)
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admin')
 
   useEffect(() => {
     // Check if splash was already shown in this session
@@ -53,8 +58,8 @@ function App() {
       <CartProvider>
         <NotificationProvider>
           <div className="app">
-            <TopBanner />
-            <Header />
+            {!isAdminRoute && <TopBanner />}
+            {!isAdminRoute && <Header />}
             <main className="main-content">
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -78,50 +83,19 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
-                  path="/admin" 
-                  element={
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/products" 
-                  element={
-                    <AdminRoute>
-                      <AdminProducts />
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/orders" 
-                  element={
-                    <AdminRoute>
-                      <AdminOrders />
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/users" 
-                  element={
-                    <AdminRoute>
-                      <AdminUsers />
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/payments" 
-                  element={
-                    <AdminRoute>
-                      <AdminPayments />
-                    </AdminRoute>
-                  } 
-                />
+                <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="payments" element={<AdminPayments />} />
+                  <Route path="banners" element={<AdminBanners />} />
+                  <Route path="sections" element={<AdminSections />} />
+                </Route>
               </Routes>
             </main>
-            <Footer />
-            <BottomNav />
+            {!isAdminRoute && <Footer />}
+            {!isAdminRoute && <BottomNav />}
           </div>
         </NotificationProvider>
       </CartProvider>
