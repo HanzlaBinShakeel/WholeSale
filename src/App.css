@@ -20,6 +20,11 @@
   animation: pageEnter 0.5s var(--ease-out);
 }
 
+.main-content.main-overlap-header {
+  margin-top: -60px;
+  padding-top: 60px;
+}
+
 .loading {
   display: flex;
   align-items: center;

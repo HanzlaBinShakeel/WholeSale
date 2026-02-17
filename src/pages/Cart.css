@@ -236,6 +236,19 @@
   border-bottom: 1px solid var(--color-border-light);
 }
 
+.payment-notice {
+  padding: var(--space-3) var(--space-4);
+  background: rgba(253, 253, 150, 0.35);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.payment-notice p {
+  margin: 0;
+}
+
 .summary-row.total {
   border-top: 2px solid var(--color-border);
   margin-top: var(--space-4);

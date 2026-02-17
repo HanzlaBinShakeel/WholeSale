@@ -41,12 +41,13 @@ function AdminPayments() {
       return
     }
 
+    const methodLabel = { upi: 'UPI', neft: 'NEFT', cash: 'Cash', bank: 'NEFT', cheque: 'Cheque', other: 'Other' }[paymentData.paymentMethod] || paymentData.paymentMethod
     const newPayment = {
       id: 'TXN-' + Date.now(),
       date: new Date().toISOString().split('T')[0],
       type: 'payment',
       orderId: paymentData.orderId,
-      description: `Payment received - ${paymentData.paymentMethod}`,
+      description: `Payment received - ${methodLabel}`,
       amount: parseFloat(paymentData.amount),
       balance: 0, // Will be calculated
       notes: paymentData.notes,
@@ -103,6 +104,15 @@ function AdminPayments() {
     })
   }
 
+  const [advancePercent, setAdvancePercent] = useState(parseInt(localStorage.getItem('advancePercent') || '20', 10))
+
+  const saveAdvancePercent = (val) => {
+    const n = Math.max(0, Math.min(50, parseInt(val) || 20))
+    setAdvancePercent(n)
+    localStorage.setItem('advancePercent', String(n))
+    showNotification('Advance % updated', 'success')
+  }
+
   const summary = {
     totalBilled: ledger.filter(t => t.type === 'bill').reduce((sum, t) => sum + Math.abs(t.amount), 0),
     totalPaid: ledger.filter(t => t.type === 'payment').reduce((sum, t) => sum + Math.abs(t.amount), 0),
@@ -116,7 +126,7 @@ function AdminPayments() {
         <div className="admin-header">
           <div>
             <h1>Payment Management</h1>
-            <p>Manage payments, bills, and ledger entries</p>
+            <p>Record UPI / NEFT / Cash payments. Ledger for credit & partial payments.</p>
           </div>
           <div className="header-actions">
             <button className="btn-secondary" onClick={handleAddAdjustment}>
@@ -125,6 +135,23 @@ function AdminPayments() {
             <button className="btn-primary" onClick={() => setShowPaymentForm(true)}>
               + Add Payment
             </button>
+          </div>
+        </div>
+
+        {/* Advance % Setting - Phase 2 */}
+        <div className="advance-setting-card">
+          <h3>Default Advance %</h3>
+          <p>Used for new orders (e.g. 20-30% advance, balance on delivery)</p>
+          <div className="advance-input-row">
+            <input
+              type="number"
+              min="0"
+              max="50"
+              value={advancePercent}
+              onChange={(e) => setAdvancePercent(parseInt(e.target.value) || 20)}
+              onBlur={(e) => saveAdvancePercent(e.target.value)}
+            />
+            <span>%</span>
           </div>
         </div>
 
@@ -182,9 +209,9 @@ function AdminPayments() {
                   onChange={(e) => setPaymentData({ ...paymentData, paymentMethod: e.target.value })}
                   required
                 >
-                  <option value="cash">Cash</option>
-                  <option value="bank">Bank Transfer</option>
                   <option value="upi">UPI</option>
+                  <option value="neft">NEFT / Bank Transfer</option>
+                  <option value="cash">Cash</option>
                   <option value="cheque">Cheque</option>
                   <option value="other">Other</option>
                 </select>

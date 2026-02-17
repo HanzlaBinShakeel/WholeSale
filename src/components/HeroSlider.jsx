@@ -40,8 +40,8 @@ function HeroSlider() {
             <div className="container hero-slide-content">
               {(b.title || b.subtitle) && (
                 <div className="hero-slide-text">
-                  {b.title && <h1>{b.title}</h1>}
-                  {b.subtitle && <p>{b.subtitle}</p>}
+                  {b.title && <h1 style={{ color: '#3D2F00' }}>{b.title}</h1>}
+                  {b.subtitle && <p style={{ color: '#3D2F00' }}>{b.subtitle}</p>}
                   {b.link && b.link !== '#' && (
                     <Link to={b.link.startsWith('/') ? b.link : `/products`} className="btn-primary large hero-slide-cta">
                       Shop Now

@@ -55,6 +55,44 @@ function AdminOrders() {
     setSelectedOrder(null)
   }
 
+  const recordPayment = (orderId, amount, method) => {
+    const order = orders.find(o => o.id === orderId)
+    const updated = orders.map(o => {
+      if (o.id === orderId) {
+        const adv = (o.advanceReceived || 0) + amount
+        const bal = (o.total || 0) - adv
+        let paymentStatus = 'pending'
+        if (bal <= 0) paymentStatus = 'paid'
+        else if (adv > 0) paymentStatus = 'advance_received'
+        return {
+          ...o,
+          advanceReceived: adv,
+          balancePending: Math.max(0, bal),
+          paymentStatus,
+          payments: [...(o.payments || []), { amount, method, date: new Date().toISOString().split('T')[0] }]
+        }
+      }
+      return o
+    })
+    localStorage.setItem('orders', JSON.stringify(updated))
+    setOrders(updated)
+    // Sync to ledger for Phase 3
+    const ledger = JSON.parse(localStorage.getItem('ledger') || '[]')
+    const lastBal = ledger.length ? ledger[ledger.length - 1].balance : 0
+    ledger.push({
+      id: 'TXN-' + Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      type: 'payment',
+      orderId,
+      description: `Payment - ${method.toUpperCase()}`,
+      amount,
+      balance: lastBal - amount,
+      paymentMethod: method
+    })
+    localStorage.setItem('ledger', JSON.stringify(ledger))
+    showNotification('Payment recorded!', 'success')
+  }
+
   const updatePartialDispatch = (orderId, itemIndex, dispatchedQty) => {
     const updated = orders.map(order => {
       if (order.id === orderId) {
@@ -155,11 +193,28 @@ function AdminOrders() {
                   ))}
                 </div>
 
+                <div className="order-payment-info">
+                  <span>Total: ₹{order.total?.toLocaleString('en-IN') || '0'}</span>
+                  {(order.advanceAmount || order.advanceReceived > 0) && (
+                    <span>Advance: ₹{(order.advanceReceived || 0).toLocaleString('en-IN')} / ₹{(order.advanceAmount || order.total).toLocaleString('en-IN')}</span>
+                  )}
+                  {(order.balancePending > 0 || order.balancePending === 0) && (
+                    <span className={order.balancePending === 0 ? 'paid' : 'pending'}>Balance: ₹{(order.balancePending || order.total).toLocaleString('en-IN')}</span>
+                  )}
+                </div>
                 <div className="order-footer-admin">
                   <div className="order-total-admin">
                     <span>Total: ₹{order.total?.toLocaleString('en-IN') || '0'}</span>
                   </div>
                   <div className="order-actions-admin">
+                    <a
+                      href={`https://wa.me/?text=Order ${order.id} - Total ₹${(order.total || 0).toLocaleString('en-IN')}. Payment: UPI/NEFT/Cash. We'll contact you.`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary small"
+                    >
+                      WhatsApp
+                    </a>
                     {order.status === 'received' && (
                       <button
                         className="btn-success small"
@@ -188,16 +243,19 @@ function AdminOrders() {
           onClose={() => setSelectedOrder(null)}
           onUpdateStatus={updateOrderStatus}
           onUpdatePartialDispatch={updatePartialDispatch}
+          onRecordPayment={recordPayment}
         />
       )}
     </div>
   )
 }
 
-function OrderStatusModal({ order, onClose, onUpdateStatus, onUpdatePartialDispatch }) {
+function OrderStatusModal({ order, onClose, onUpdateStatus, onUpdatePartialDispatch, onRecordPayment }) {
   const [newStatus, setNewStatus] = useState(order.status)
   const [dispatchNote, setDispatchNote] = useState('')
   const [partialDispatch, setPartialDispatch] = useState({})
+  const [paymentAmount, setPaymentAmount] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('upi')
 
   const handleStatusUpdate = () => {
     if (newStatus === 'partially-dispatched') {
@@ -221,6 +279,44 @@ function OrderStatusModal({ order, onClose, onUpdateStatus, onUpdatePartialDispa
         </div>
 
         <div className="modal-body">
+          {/* Payment Section - Phase 2: Advance / Phase 3: Partial */}
+          <div className="order-payment-section">
+            <h4>Payment (UPI / NEFT / Cash)</h4>
+            <div className="payment-summary-inline">
+              <span>Total: ₹{(order.total || 0).toLocaleString('en-IN')}</span>
+              <span>Received: ₹{(order.advanceReceived || 0).toLocaleString('en-IN')}</span>
+              <span className={order.balancePending === 0 ? 'paid' : ''}>Balance: ₹{(order.balancePending ?? order?.total ?? 0).toLocaleString('en-IN')}</span>
+            </div>
+            <div className="record-payment-row">
+              <input
+                type="number"
+                placeholder="Amount (₹)"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+                min="0"
+              />
+              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                <option value="upi">UPI</option>
+                <option value="neft">NEFT</option>
+                <option value="cash">Cash</option>
+              </select>
+              <button
+                type="button"
+                className="btn-success small"
+                disabled={!paymentAmount || parseFloat(paymentAmount) <= 0}
+                onClick={() => {
+                  const amt = parseFloat(paymentAmount)
+                  if (amt > 0) {
+                    onRecordPayment(order.id, amt, paymentMethod)
+                    setPaymentAmount('')
+                  }
+                }}
+              >
+                Record Payment
+              </button>
+            </div>
+          </div>
+
           <div className="form-group">
             <label>Current Status</label>
             <div className="current-status">{order.status}</div>

@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
-import { FiSearch, FiShoppingCart, FiMenu, FiX } from 'react-icons/fi'
+import { useWishlist } from '../context/WishlistContext'
+import { FiSearch, FiShoppingCart, FiHeart, FiMenu, FiX } from 'react-icons/fi'
 import './Header.css'
 
 function Header() {
@@ -14,6 +15,7 @@ function Header() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const cartCount = getItemCount()
+  const wishlistCount = useWishlist().wishlist.length
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -71,7 +73,12 @@ function Header() {
               >
                 <FiSearch />
               </button>
-              
+              <Link to="/wishlist" className="icon-btn cart-btn" aria-label="Wishlist">
+                <FiHeart />
+                {wishlistCount > 0 && (
+                  <span className="badge">{wishlistCount > 99 ? '99+' : wishlistCount}</span>
+                )}
+              </Link>
               <Link to="/cart" className="icon-btn cart-btn" aria-label="Cart">
                 <FiShoppingCart />
                 {cartCount > 0 && (

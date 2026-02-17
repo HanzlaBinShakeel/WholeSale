@@ -25,7 +25,12 @@ function Cart() {
       return
     }
 
-    // Create order with buyer info for admin
+    const total = getTotal()
+    const advancePercent = parseInt(localStorage.getItem('advancePercent') || '20', 10)
+    const advanceAmount = Math.round(total * advancePercent / 100)
+    const balancePending = total - advanceAmount
+
+    // Phase 1: Enquiry — No online payment. Offline: UPI / NEFT / Cash
     const order = {
       id: 'ORD-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-6),
       date: new Date().toISOString().split('T')[0],
@@ -36,11 +41,19 @@ function Cart() {
         dispatched: item.quantity,
         pending: 0
       })),
-      total: getTotal(),
+      total,
+      advancePercent,
+      advanceAmount,
+      advanceReceived: 0,
+      balancePending,
+      paymentType: 'offline',
+      paymentStatus: 'pending',
+      paymentMethods: ['UPI', 'NEFT', 'Cash'],
       notes: orderNotes,
       status: 'received',
       buyerName: user?.name || user?.buyerName || user?.shopName,
       buyerMobile: user?.mobile,
+      buyerCity: user?.city,
       createdAt: new Date().toISOString(),
       timeline: [{ status: 'received', date: new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) }]
     }
@@ -50,9 +63,24 @@ function Cart() {
     orders.unshift(order)
     localStorage.setItem('orders', JSON.stringify(orders))
 
+    // Phase 3: Add bill to ledger for credit tracking
+    const ledger = JSON.parse(localStorage.getItem('ledger') || '[]')
+    const lastBal = ledger.length ? ledger[ledger.length - 1].balance : 0
+    ledger.push({
+      id: 'TXN-' + Date.now(),
+      date: order.date,
+      type: 'bill',
+      orderId: order.id,
+      description: `Order - ${order.items?.map(i => i.name).join(', ').slice(0, 50)}...`,
+      amount: total,
+      balance: lastBal + total,
+      notes: `Buyer: ${order.buyerName || 'N/A'}`
+    })
+    localStorage.setItem('ledger', JSON.stringify(ledger))
+
     // Clear cart
     clearCart()
-    showNotification('Order placed successfully! Order ID: ' + order.id, 'success', 5000)
+    showNotification('Enquiry sent! We will contact you. Order ID: ' + order.id, 'success', 5000)
     
     setTimeout(() => {
       navigate('/orders')
@@ -124,12 +152,15 @@ function Cart() {
               <span>Total Amount:</span>
               <span>₹{getTotal().toLocaleString('en-IN')}</span>
             </div>
+            <div className="payment-notice">
+              <p>No online payment. Payment via <strong>UPI</strong>, <strong>NEFT</strong> or <strong>Cash</strong> after order confirmation.</p>
+            </div>
             <div className="cart-actions">
               <Link to="/products" className="btn-secondary full-width">
                 Continue Shopping
               </Link>
               <button className="btn-primary full-width large" onClick={handlePlaceOrder}>
-                Place Order
+                Place Order / Send Enquiry
               </button>
             </div>
             </ScrollReveal>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
+import { useWishlist } from '../context/WishlistContext'
+import { FiHeart } from 'react-icons/fi'
 import ScrollReveal from '../components/ScrollReveal'
 import './Products.css'
 
-// Sample products data with sub-categories
 const allProducts = [
   { id: 1, name: 'Premium Saafa Set - Red', code: 'SAF-001', category: 'saafa', subCategory: 'Wedding', price: 450, moq: 50, stock: 'available', image: 'https://via.placeholder.com/300x300/1E40AF/FFFFFF?text=Premium+Saafa' },
   { id: 2, name: 'Designer Odhna - Blue', code: 'ODH-205', category: 'odhna', subCategory: 'Premium', price: 680, moq: 20, stock: 'available', image: 'https://via.placeholder.com/300x300/D97706/FFFFFF?text=Designer+Odhna' },
@@ -13,49 +14,44 @@ const allProducts = [
   { id: 6, name: 'Wedding Bandhej Set', code: 'BAN-201', category: 'bandhej', subCategory: 'Wedding', price: 850, moq: 25, stock: 'available', image: 'https://via.placeholder.com/300x300/EC4899/FFFFFF?text=Wedding+Bandhej' },
 ]
 
+const SORT_OPTIONS = [
+  { value: 'default', label: 'Default' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'name', label: 'Name A-Z' },
+  { value: 'newest', label: 'Newest First' },
+]
+
 function Products() {
   const [searchParams] = useSearchParams()
   const [products, setProducts] = useState(allProducts)
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all')
   const [selectedSubCategory, setSelectedSubCategory] = useState('all')
+  const [sortBy, setSortBy] = useState('default')
 
   useEffect(() => {
-    // Load products from admin or use sample
-    const adminProducts = localStorage.getItem('adminProducts')
-    let allProductsData = allProducts
-    
-    if (adminProducts) {
-      try {
-        const parsed = JSON.parse(adminProducts)
-        if (parsed.length > 0) {
-          allProductsData = parsed
-        }
-      } catch (e) {
-        // Use default
-      }
-    }
+    let data = JSON.parse(localStorage.getItem('adminProducts') || '[]')
+    if (!data.length) data = allProducts
 
-    let filtered = allProductsData
-
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(p => p.category === selectedCategory)
-    }
-
-    if (selectedSubCategory !== 'all') {
-      filtered = filtered.filter(p => p.subCategory === selectedSubCategory)
-    }
-
+    let filtered = data
+    if (selectedCategory !== 'all') filtered = filtered.filter(p => p.category === selectedCategory)
+    if (selectedSubCategory !== 'all') filtered = filtered.filter(p => p.subCategory === selectedSubCategory)
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(query) || 
-        p.code.toLowerCase().includes(query)
+      const q = searchQuery.toLowerCase()
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(q) || (p.code && p.code.toLowerCase().includes(q))
       )
     }
 
+    // Sort
+    if (sortBy === 'price-asc') filtered = [...filtered].sort((a, b) => (a.price || 0) - (b.price || 0))
+    else if (sortBy === 'price-desc') filtered = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0))
+    else if (sortBy === 'name') filtered = [...filtered].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    else if (sortBy === 'newest') filtered = [...filtered].sort((a, b) => (b.id || 0) - (a.id || 0))
+
     setProducts(filtered)
-  }, [searchQuery, selectedCategory, selectedSubCategory])
+  }, [searchQuery, selectedCategory, selectedSubCategory, sortBy])
 
   return (
     <div className="products-page">
@@ -72,41 +68,49 @@ function Products() {
 
         <ScrollReveal variant="fadeUp">
           <div className="filter-section">
-          <div className="filter-row">
-            <div className="filter-group">
-              <label>Category</label>
-              <div className="filter-chips">
-                {['all', 'saafa', 'odhna', 'rajputi-suit', 'rajputi-jod', 'bandhej'].map(cat => (
-                  <button
-                    key={cat}
-                    className={`chip ${selectedCategory === cat ? 'active' : ''}`}
-                    onClick={() => {
-                      setSelectedCategory(cat)
-                      setSelectedSubCategory('all')
-                    }}
-                  >
-                    {cat === 'all' ? 'All' : cat.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                  </button>
-                ))}
+            <div className="filter-row">
+              <div className="filter-group">
+                <label>Category</label>
+                <div className="filter-chips">
+                  {['all', 'saafa', 'odhna', 'rajputi-suit', 'rajputi-jod', 'bandhej'].map(cat => (
+                    <button
+                      key={cat}
+                      className={`chip ${selectedCategory === cat ? 'active' : ''}`}
+                      onClick={() => { setSelectedCategory(cat); setSelectedSubCategory('all') }}
+                    >
+                      {cat === 'all' ? 'All' : cat.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-            
-            <div className="filter-group">
-              <label>Sub-Category</label>
-              <div className="filter-chips">
-                {['all', 'Wedding', 'Daily', 'Premium'].map(sub => (
-                  <button
-                    key={sub}
-                    className={`chip ${selectedSubCategory === sub ? 'active' : ''}`}
-                    onClick={() => setSelectedSubCategory(sub)}
-                  >
-                    {sub}
-                  </button>
-                ))}
+              <div className="filter-group">
+                <label>Sub-Category</label>
+                <div className="filter-chips">
+                  {['all', 'Wedding', 'Daily', 'Premium'].map(sub => (
+                    <button
+                      key={sub}
+                      className={`chip ${selectedSubCategory === sub ? 'active' : ''}`}
+                      onClick={() => setSelectedSubCategory(sub)}
+                    >
+                      {sub}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="filter-group filter-sort">
+                <label>Sort</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="sort-select"
+                >
+                  {SORT_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
-        </div>
         </ScrollReveal>
 
         <ScrollReveal variant="stagger" className="products-grid">
@@ -128,23 +132,26 @@ function Products() {
 }
 
 function ProductCard({ product }) {
-  const stockBadgeClass = {
-    available: 'available',
-    limited: 'limited',
-    'out-of-stock': 'out-of-stock'
-  }[product.stock] || 'available'
+  const { toggleWishlist, isInWishlist } = useWishlist()
+  const stockBadgeClass = { available: 'available', limited: 'limited', 'out-of-stock': 'out-of-stock' }[product.stock] || 'available'
+  const img = product.images?.[0] || product.image
 
   return (
     <div className="product-card">
+      <button
+        className={`wishlist-btn ${isInWishlist(product.id) ? 'active' : ''}`}
+        onClick={(e) => { e.preventDefault(); toggleWishlist(product) }}
+        aria-label={isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+      >
+        <FiHeart fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
+      </button>
       <div className="product-card-tags">
         <span className="pill pill-warning">New</span>
-        {product.subCategory && (
-          <span className="tag">{product.subCategory}</span>
-        )}
+        {product.subCategory && <span className="tag">{product.subCategory}</span>}
       </div>
-      <div className="product-image">
-        <img src={product.image} alt={product.name} />
-      </div>
+      <Link to={`/product/${product.id}`} className="product-image">
+        <img src={img} alt={product.name} />
+      </Link>
       <div className="product-info">
         <h3>{product.name}</h3>
         <span className="pill pill-neutral">Code: {product.code}</span>
@@ -153,8 +160,7 @@ function ProductCard({ product }) {
           <span className="price">₹{product.price}/pc</span>
         </div>
         <span className={`pill pill-${stockBadgeClass === 'available' ? 'success' : stockBadgeClass === 'limited' ? 'warning' : 'error'}`}>
-          {product.stock === 'available' ? 'In Stock' : 
-           product.stock === 'limited' ? 'Limited' : 'Out of Stock'}
+          {product.stock === 'available' ? 'In Stock' : product.stock === 'limited' ? 'Limited' : 'Out of Stock'}
         </span>
         <Link to={`/product/${product.id}`} className="btn-primary small full-width">
           View Details

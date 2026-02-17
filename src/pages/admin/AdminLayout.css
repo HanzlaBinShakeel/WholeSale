@@ -63,11 +63,11 @@
 }
 
 .logo-badge {
-  background: linear-gradient(135deg, var(--color-accent) 0%, #D97706 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary-dark) 100%);
   padding: 2px 8px;
   border-radius: 6px;
   font-size: 0.6875rem;
-  -webkit-text-fill-color: white;
+  -webkit-text-fill-color: #3D2F00;
 }
 
 .sidebar-close {
@@ -133,7 +133,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Main content - zero gap, flush against sidebar */
+/* Main content - flush against sidebar, no gap */
 .admin-main {
   flex: 1;
   display: flex;
@@ -141,13 +141,6 @@
   min-width: 0;
   margin-left: 0;
   padding-left: 0;
-}
-
-@media (min-width: 1024px) {
-  .admin-main {
-    margin-left: 260px;
-    width: calc(100% - 260px);
-  }
 }
 
 .admin-topbar {
@@ -195,7 +188,7 @@
 
 .admin-content {
   flex: 1;
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-4) var(--space-6);
   padding-left: var(--space-4);
   padding-bottom: calc(var(--space-8) + var(--safe-bottom));
   animation: adminContentFade 0.3s var(--ease-out);

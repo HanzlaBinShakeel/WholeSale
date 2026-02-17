@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
+import { WishlistProvider } from './context/WishlistContext'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
 
@@ -20,6 +21,8 @@ import AdminUsers from './pages/admin/Users'
 import AdminPayments from './pages/admin/Payments'
 import AdminBanners from './pages/admin/Banners'
 import AdminSections from './pages/admin/Sections'
+import AdminSettings from './pages/admin/Settings'
+import Wishlist from './pages/Wishlist'
 
 // Components
 import TopBanner from './components/TopBanner'
@@ -56,16 +59,18 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
+        <WishlistProvider>
         <NotificationProvider>
           <div className="app">
             {!isAdminRoute && <TopBanner />}
             {!isAdminRoute && <Header />}
-            <main className="main-content">
+            <main className={`main-content ${!isAdminRoute ? 'main-overlap-header' : ''}`}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/login" element={<Login />} />
                 <Route 
                   path="/orders" 
@@ -91,6 +96,7 @@ function App() {
                   <Route path="payments" element={<AdminPayments />} />
                   <Route path="banners" element={<AdminBanners />} />
                   <Route path="sections" element={<AdminSections />} />
+                  <Route path="settings" element={<AdminSettings />} />
                 </Route>
               </Routes>
             </main>
@@ -98,6 +104,7 @@ function App() {
             {!isAdminRoute && <BottomNav />}
           </div>
         </NotificationProvider>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   )

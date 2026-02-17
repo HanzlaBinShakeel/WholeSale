@@ -1,8 +1,9 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FiHome, FiGrid, FiShoppingCart, FiUser } from 'react-icons/fi'
+import { FiHome, FiGrid, FiHeart, FiShoppingCart, FiUser } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
 import './BottomNav.css'
 
 function BottomNav() {
@@ -10,6 +11,7 @@ function BottomNav() {
   const { user } = useAuth()
   const { getItemCount } = useCart()
   const cartCount = getItemCount()
+  const wishlistCount = useWishlist().wishlist.length
 
   // Hide on login and admin pages
   if (location.pathname === '/login' || location.pathname.startsWith('/admin')) {
@@ -19,6 +21,7 @@ function BottomNav() {
   const navItems = [
     { to: '/', icon: FiHome, label: 'Home' },
     { to: '/products', icon: FiGrid, label: 'Products' },
+    { to: '/wishlist', icon: FiHeart, label: 'Wishlist', badge: wishlistCount },
     { to: '/cart', icon: FiShoppingCart, label: 'Cart', badge: cartCount },
     { to: user ? '/orders' : '/login', icon: FiUser, label: user ? 'Orders' : 'Login' },
   ]

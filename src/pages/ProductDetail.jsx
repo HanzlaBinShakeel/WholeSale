@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
+import { FiHeart } from 'react-icons/fi'
 import { useNotification } from '../context/NotificationContext'
 import { useAuth } from '../context/AuthContext'
 import ScrollReveal from '../components/ScrollReveal'
@@ -40,6 +42,7 @@ function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { addToCart } = useCart()
+  const { toggleWishlist, isInWishlist } = useWishlist()
   const { showNotification } = useNotification()
   const { isAuthenticated } = useAuth()
   
@@ -109,8 +112,17 @@ function ProductDetail() {
 
           <div className="product-info-detail">
             <div className="product-header-detail">
-              <h1>{product.name}</h1>
-              <div className="product-code-large">Code: {product.code}</div>
+              <div>
+                <h1>{product.name}</h1>
+                <div className="product-code-large">Code: {product.code}</div>
+              </div>
+              <button
+                className={`wishlist-btn-detail ${isInWishlist(product.id) ? 'active' : ''}`}
+                onClick={() => toggleWishlist(product)}
+                aria-label={isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                <FiHeart fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
+              </button>
             </div>
 
             <div className="product-badges">
