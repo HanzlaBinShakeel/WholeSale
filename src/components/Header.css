@@ -1,14 +1,14 @@
 /* ═══ HEADER - Professional & Elegant ═══ */
 
 .app-header {
-  background: rgba(255, 255, 255, 0.2);
-  color: #3D2F00;
+  background: rgba(247, 243, 239, 0.72);
+  color: var(--color-text-primary);
   padding: var(--space-3) 0;
   padding-top: calc(var(--space-3) + var(--safe-top));
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 1px 0 rgba(61, 47, 0, 0.06);
+  box-shadow: 0 1px 0 rgba(47, 33, 25, 0.08);
   backdrop-filter: saturate(180%) blur(24px);
   -webkit-backdrop-filter: saturate(180%) blur(24px);
 }
@@ -24,7 +24,7 @@
   font-family: var(--font-heading);
   font-size: 1.5rem;
   font-weight: 800;
-  color: #3D2F00;
+  color: var(--color-text-primary);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -39,19 +39,19 @@
 }
 
 .logo-text {
-  color: #3D2F00;
+  color: var(--color-text-primary);
 }
 
 .admin-badge {
-  background: rgba(61, 47, 0, 0.15);
-  color: #3D2F00;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
   padding: 2px 8px;
   border-radius: 6px;
   font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border: 1px solid rgba(61, 47, 0, 0.3);
+  border: 1px solid rgba(143, 95, 79, 0.25);
   margin-left: var(--space-2);
 }
 
@@ -69,7 +69,7 @@
 }
 
 .nav-link {
-  color: rgba(61, 47, 0, 0.85);
+  color: var(--color-text-secondary);
   text-decoration: none;
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-md);
@@ -79,8 +79,8 @@
 }
 
 .nav-link:hover {
-  color: #3D2F00;
-  background: rgba(61, 47, 0, 0.08);
+  color: var(--color-text-primary);
+  background: var(--color-primary-soft);
   transform: translateY(-1px);
 }
 
@@ -91,9 +91,9 @@
 }
 
 .icon-btn {
-  background: rgba(61, 47, 0, 0.08);
+  background: rgba(196, 131, 111, 0.12);
   border: none;
-  color: #3D2F00;
+  color: var(--color-primary-dark);
   width: var(--touch-target);
   height: var(--touch-target);
   min-width: var(--touch-target);
@@ -110,7 +110,7 @@
 }
 
 .icon-btn:hover {
-  background: rgba(61, 47, 0, 0.14);
+  background: rgba(196, 131, 111, 0.2);
   transform: scale(1.05);
 }
 
@@ -146,7 +146,7 @@
 }
 
 .user-name {
-  color: #3D2F00;
+  color: var(--color-text-secondary);
   font-weight: 500;
   font-size: 0.875rem;
   max-width: 120px;
@@ -170,13 +170,13 @@
 
 .header-actions .btn-secondary {
   background: transparent;
-  color: #3D2F00;
-  border-color: rgba(61, 47, 0, 0.3);
+  color: var(--color-primary-dark);
+  border-color: rgba(143, 95, 79, 0.3);
 }
 
 .header-actions .btn-secondary:hover {
-  background: rgba(61, 47, 0, 0.08);
-  border-color: rgba(61, 47, 0, 0.5);
+  background: rgba(196, 131, 111, 0.12);
+  border-color: rgba(143, 95, 79, 0.55);
 }
 
 .mobile-menu-btn {
@@ -187,9 +187,9 @@
   height: var(--touch-target);
   min-width: var(--touch-target);
   min-height: var(--touch-target);
-  background: rgba(61, 47, 0, 0.08);
+  background: rgba(196, 131, 111, 0.12);
   border: none;
-  color: #3D2F00;
+  color: var(--color-primary-dark);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 1.5rem;
@@ -212,7 +212,7 @@
   bottom: 0;
   flex-direction: column;
   padding: calc(80px + var(--safe-top)) var(--space-6) var(--space-8);
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(247, 243, 239, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   z-index: 999;
@@ -224,7 +224,7 @@
   padding: var(--space-4) var(--space-4);
   font-size: 1.125rem;
   border-radius: var(--radius-lg);
-  color: #3D2F00;
+  color: var(--color-text-primary);
 }
 
 /* Search Bar */

@@ -15,8 +15,8 @@
   bottom: 0;
   width: 260px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
-  color: white;
+  background: linear-gradient(180deg, #f6ede8 0%, #efe7f3 100%);
+  color: var(--color-text-primary);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -40,7 +40,7 @@
 
 .sidebar-header {
   padding: var(--space-5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -51,23 +51,23 @@
   align-items: center;
   gap: var(--space-2);
   text-decoration: none;
-  color: white;
+  color: var(--color-text-primary);
   font-weight: 700;
   font-size: 1.25rem;
 }
 
 .logo-text {
-  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.9) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-text-primary);
+  -webkit-text-fill-color: var(--color-text-primary);
 }
 
 .logo-badge {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary-dark) 100%);
+  background: var(--color-primary-soft);
   padding: 2px 8px;
   border-radius: 6px;
   font-size: 0.6875rem;
-  -webkit-text-fill-color: #3D2F00;
+  -webkit-text-fill-color: var(--color-primary-dark);
+  border: 1px solid rgba(143, 95, 79, 0.24);
 }
 
 .sidebar-close {
@@ -77,8 +77,8 @@
   width: 36px;
   height: 36px;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: rgba(196, 131, 111, 0.16);
+  color: var(--color-primary-dark);
   font-size: 1.5rem;
   cursor: pointer;
   border-radius: var(--radius-md);
@@ -92,7 +92,7 @@
 }
 
 .sidebar-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(196, 131, 111, 0.24);
 }
 
 .admin-nav {
@@ -106,7 +106,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-4);
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
   text-decoration: none;
   border-radius: var(--radius-lg);
   transition: all 0.2s var(--ease-out);
@@ -114,13 +114,13 @@
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  background: var(--color-primary-soft);
+  color: var(--color-text-primary);
 }
 
 .nav-item.active {
-  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  color: white;
+  background: linear-gradient(90deg, #d2a191 0%, #e7c2b4 100%);
+  color: var(--color-primary-dark);
 }
 
 .nav-icon {
@@ -130,7 +130,7 @@
 
 .sidebar-footer {
   padding: var(--space-4);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Main content - flush against sidebar, no gap */
@@ -150,7 +150,7 @@
   background: var(--color-card);
   padding: var(--space-4) var(--space-6);
   box-shadow: var(--shadow-sm);
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -163,7 +163,7 @@
   width: 44px;
   height: 44px;
   border: none;
-  background: var(--color-bg);
+  background: var(--surface-soft);
   font-size: 1.5rem;
   cursor: pointer;
   border-radius: var(--radius-md);
@@ -204,7 +204,7 @@
 .admin-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(47, 33, 25, 0.35);
   z-index: 999;
   animation: overlayFade 0.2s ease-out;
 }

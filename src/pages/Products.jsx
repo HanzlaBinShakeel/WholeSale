@@ -6,12 +6,12 @@ import ScrollReveal from '../components/ScrollReveal'
 import './Products.css'
 
 const allProducts = [
-  { id: 1, name: 'Premium Saafa Set - Red', code: 'SAF-001', category: 'saafa', subCategory: 'Wedding', price: 450, moq: 50, stock: 'available', image: 'https://via.placeholder.com/300x300/1E40AF/FFFFFF?text=Premium+Saafa' },
-  { id: 2, name: 'Designer Odhna - Blue', code: 'ODH-205', category: 'odhna', subCategory: 'Premium', price: 680, moq: 20, stock: 'available', image: 'https://via.placeholder.com/300x300/D97706/FFFFFF?text=Designer+Odhna' },
-  { id: 3, name: 'Royal Rajputi Suit', code: 'RJS-108', category: 'rajputi-suit', subCategory: 'Wedding', price: 1200, moq: 30, stock: 'limited', image: 'https://via.placeholder.com/300x300/7C3AED/FFFFFF?text=Royal+Suit' },
-  { id: 4, name: 'Traditional Saafa - Green', code: 'SAF-003', category: 'saafa', subCategory: 'Daily', price: 350, moq: 100, stock: 'available', image: 'https://via.placeholder.com/300x300/059669/FFFFFF?text=Traditional+Saafa' },
-  { id: 5, name: 'Daily Wear Odhna', code: 'ODH-101', category: 'odhna', subCategory: 'Daily', price: 450, moq: 50, stock: 'available', image: 'https://via.placeholder.com/300x300/10B981/FFFFFF?text=Daily+Odhna' },
-  { id: 6, name: 'Wedding Bandhej Set', code: 'BAN-201', category: 'bandhej', subCategory: 'Wedding', price: 850, moq: 25, stock: 'available', image: 'https://via.placeholder.com/300x300/EC4899/FFFFFF?text=Wedding+Bandhej' },
+  { id: 1, name: 'Premium Saafa Set - Red', code: 'SAF-001', category: 'saafa', subCategory: 'Wedding', price: 450, moq: 50, stock: 'available', image: 'https://via.placeholder.com/300x300/EAD7CF/5B4035?text=Premium+Saafa' },
+  { id: 2, name: 'Designer Odhna - Blue', code: 'ODH-205', category: 'odhna', subCategory: 'Premium', price: 680, moq: 20, stock: 'available', image: 'https://via.placeholder.com/300x300/E7DFEE/5B4035?text=Designer+Odhna' },
+  { id: 3, name: 'Royal Rajputi Suit', code: 'RJS-108', category: 'rajputi-suit', subCategory: 'Wedding', price: 1200, moq: 30, stock: 'limited', image: 'https://via.placeholder.com/300x300/F0E1D9/5B4035?text=Royal+Suit' },
+  { id: 4, name: 'Traditional Saafa - Green', code: 'SAF-003', category: 'saafa', subCategory: 'Daily', price: 350, moq: 100, stock: 'available', image: 'https://via.placeholder.com/300x300/F3E8E2/5B4035?text=Traditional+Saafa' },
+  { id: 5, name: 'Daily Wear Odhna', code: 'ODH-101', category: 'odhna', subCategory: 'Daily', price: 450, moq: 50, stock: 'available', image: 'https://via.placeholder.com/300x300/F7EEE8/5B4035?text=Daily+Odhna' },
+  { id: 6, name: 'Wedding Bandhej Set', code: 'BAN-201', category: 'bandhej', subCategory: 'Wedding', price: 850, moq: 25, stock: 'available', image: 'https://via.placeholder.com/300x300/EFDFD7/5B4035?text=Wedding+Bandhej' },
 ]
 
 const SORT_OPTIONS = [

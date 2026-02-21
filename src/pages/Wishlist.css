@@ -1,6 +1,7 @@
 .wishlist-page {
   padding: var(--space-6) 0;
   padding-bottom: calc(var(--space-12) + var(--safe-bottom));
+  background: var(--surface-soft);
 }
 
 .empty-wishlist {
@@ -47,7 +48,7 @@
   background: var(--color-card);
   border-radius: var(--radius-xl);
   overflow: hidden;
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -87,8 +88,9 @@
 }
 
 .wishlist-info h3 {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.06rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
   margin-bottom: var(--space-1);
   display: -webkit-box;
   -webkit-line-clamp: 2;

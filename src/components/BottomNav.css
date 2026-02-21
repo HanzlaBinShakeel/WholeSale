@@ -9,11 +9,11 @@
   right: 0;
   z-index: 1000;
   padding-bottom: var(--safe-bottom);
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(247, 243, 239, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--color-border-light);
-  box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 -4px 24px rgba(47, 33, 25, 0.08);
 }
 
 @media (max-width: 1023px) {
@@ -62,8 +62,8 @@
 }
 
 .bottom-nav-item.active .bottom-nav-icon {
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  background: rgba(196, 131, 111, 0.16);
+  color: var(--color-primary-dark);
 }
 
 .bottom-nav-icon {
@@ -87,7 +87,7 @@
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: white;
   font-size: 0.6875rem;
   font-weight: 700;

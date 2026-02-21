@@ -3,6 +3,7 @@
 .home-page {
   min-height: calc(100vh - 200px);
   padding-bottom: env(safe-area-inset-bottom, 0);
+  background: var(--color-bg);
 }
 
 /* Hero stays fixed, content scrolls over it */
@@ -85,8 +86,8 @@
 .hero-left-bg {
   position: absolute;
   inset: 0;
-  background: 
-    linear-gradient(135deg, #E6B800 0%, #D4A017 40%, #B8860B 100%),
+  background:
+    linear-gradient(135deg, #efe9e2 0%, #f4ede8 58%, #ede8f4 100%),
     url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='0.5'/%3E%3Ccircle cx='15' cy='15' r='0.8' fill='rgba(255,255,255,0.08)'/%3E%3Ccircle cx='45' cy='45' r='0.8' fill='rgba(255,255,255,0.08)'/%3E%3Ccircle cx='15' cy='45' r='0.6' fill='rgba(255,255,255,0.05)'/%3E%3Ccircle cx='45' cy='15' r='0.6' fill='rgba(255,255,255,0.05)'/%3E%3C/svg%3E");
   background-size: 100% 100%, 60px 60px;
   z-index: 0;
@@ -97,8 +98,8 @@
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.25) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(253,253,150,0.3) 0%, transparent 40%);
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.55) 0%, transparent 52%),
+    radial-gradient(circle at 80% 20%, rgba(217,154,132,0.15) 0%, transparent 42%);
   pointer-events: none;
 }
 
@@ -167,8 +168,8 @@
 .hero-left .hero-badge {
   display: inline-block;
   padding: var(--space-2) var(--space-4);
-  background: rgba(61, 47, 0, 0.15);
-  border: 1px solid rgba(61, 47, 0, 0.3);
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(143, 95, 79, 0.22);
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 600;
@@ -186,7 +187,7 @@
   letter-spacing: -0.03em;
   color: #3D2F00;
   margin-bottom: var(--space-4);
-  text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+  text-shadow: 0 1px 2px rgba(255,255,255,0.35);
 }
 
 @media (min-width: 640px) {
@@ -223,8 +224,8 @@
 
 .hero-tag {
   padding: var(--space-2) var(--space-4);
-  background: rgba(61, 47, 0, 0.12);
-  border: 1px solid rgba(61, 47, 0, 0.25);
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(143, 95, 79, 0.22);
   border-radius: var(--radius-full);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -234,7 +235,7 @@
 }
 
 .hero-tag:hover {
-  background: rgba(61, 47, 0, 0.2);
+  background: rgba(255, 255, 255, 0.9);
   transform: translateY(-2px);
 }
 
@@ -245,20 +246,20 @@
 }
 
 .hero-btn-primary {
-  background: #3D2F00 !important;
-  color: #FDFD96 !important;
+  background: var(--color-primary-dark) !important;
+  color: #fff !important;
 }
 
 .hero-btn-secondary {
-  background: transparent !important;
-  color: #3D2F00 !important;
-  border-color: rgba(61, 47, 0, 0.5) !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  color: var(--color-text-primary) !important;
+  border-color: rgba(143, 95, 79, 0.42) !important;
 }
 
 .hero-right {
   position: relative;
   min-height: 100%;
-  background: #0F172A;
+  background: #d5cec7;
 }
 
 .hero-image-wrap {
@@ -319,7 +320,7 @@
   display: flex;
   align-items: center;
   padding: var(--space-8) 0;
-  background: linear-gradient(165deg, #E6B800 0%, #D4A017 30%, #B8860B 100%);
+  background: #ECEBCF;
 }
 
 .hero-content {
@@ -362,6 +363,7 @@
 .categories-section {
   padding: var(--space-12) 0;
   animation: sectionReveal 0.7s var(--ease-out);
+  background: var(--surface-soft);
 }
 
 @keyframes sectionReveal {
@@ -486,6 +488,7 @@
 /* New Arrivals */
 .new-arrivals-section {
   padding: var(--space-12) 0;
+  background: var(--color-bg);
 }
 
 .products-grid-elegant {
@@ -613,10 +616,11 @@
 /* Deals */
 .deals-section {
   padding: var(--space-12) 0;
+  background: var(--surface-alt);
 }
 
 .deals-banner {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(135deg, #c69282 0%, #d9a594 100%);
   border-radius: var(--radius-2xl);
   padding: var(--space-8);
   box-shadow: 0 16px 48px rgba(212, 160, 23, 0.3);
@@ -648,6 +652,7 @@
 /* Wholesale Notice */
 .wholesale-notice-section {
   padding: var(--space-12) 0;
+  background: var(--color-bg);
 }
 
 .wholesale-notice-elegant {
@@ -655,7 +660,7 @@
   align-items: center;
   gap: var(--space-6);
   padding: var(--space-6);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(135deg, #c69282 0%, #a77663 100%);
   border-radius: var(--radius-2xl);
   color: white;
   box-shadow: 0 12px 40px rgba(212, 160, 23, 0.25);

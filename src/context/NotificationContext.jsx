@@ -44,10 +44,10 @@ function NotificationContainer({ notifications, removeNotification }) {
 
 function Notification({ notification, onRemove }) {
   const colors = {
-    success: '#10B981',
-    error: '#EF4444',
-    warning: '#F59E0B',
-    info: '#3B82F6'
+    success: 'var(--notification-success)',
+    error: 'var(--notification-error)',
+    warning: 'var(--notification-warning)',
+    info: 'var(--notification-info)'
   }
 
   return (

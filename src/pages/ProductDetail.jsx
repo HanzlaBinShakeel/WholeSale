@@ -286,12 +286,12 @@ function ProductDetail() {
 
 function getColorHex(color) {
   const colors = {
-    'Red': '#DC2626',
-    'Blue': '#1E40AF',
-    'Green': '#059669',
-    'Purple': '#7C3AED'
+    'Red': 'var(--swatch-red)',
+    'Blue': 'var(--swatch-blue)',
+    'Green': 'var(--swatch-green)',
+    'Purple': 'var(--swatch-purple)'
   }
-  return colors[color] || '#6B7280'
+  return colors[color] || 'var(--color-text-muted)'
 }
 
 export default ProductDetail
