@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { useWishlist } from '../context/WishlistContext'
-import { FiHeart } from 'react-icons/fi'
+import { FiHeart, FiFilter, FiChevronDown, FiGrid, FiList } from 'react-icons/fi'
 import ScrollReveal from '../components/ScrollReveal'
+import { defaultProducts, normalizeProducts } from '../data/defaultCatalog'
 import './Products.css'
 
-const allProducts = [
-  { id: 1, name: 'Premium Saafa Set - Red', code: 'SAF-001', category: 'saafa', subCategory: 'Wedding', price: 450, moq: 50, stock: 'available', image: 'https://via.placeholder.com/300x300/EAD7CF/5B4035?text=Premium+Saafa' },
-  { id: 2, name: 'Designer Odhna - Blue', code: 'ODH-205', category: 'odhna', subCategory: 'Premium', price: 680, moq: 20, stock: 'available', image: 'https://via.placeholder.com/300x300/E7DFEE/5B4035?text=Designer+Odhna' },
-  { id: 3, name: 'Royal Rajputi Suit', code: 'RJS-108', category: 'rajputi-suit', subCategory: 'Wedding', price: 1200, moq: 30, stock: 'limited', image: 'https://via.placeholder.com/300x300/F0E1D9/5B4035?text=Royal+Suit' },
-  { id: 4, name: 'Traditional Saafa - Green', code: 'SAF-003', category: 'saafa', subCategory: 'Daily', price: 350, moq: 100, stock: 'available', image: 'https://via.placeholder.com/300x300/F3E8E2/5B4035?text=Traditional+Saafa' },
-  { id: 5, name: 'Daily Wear Odhna', code: 'ODH-101', category: 'odhna', subCategory: 'Daily', price: 450, moq: 50, stock: 'available', image: 'https://via.placeholder.com/300x300/F7EEE8/5B4035?text=Daily+Odhna' },
-  { id: 6, name: 'Wedding Bandhej Set', code: 'BAN-201', category: 'bandhej', subCategory: 'Wedding', price: 850, moq: 25, stock: 'available', image: 'https://via.placeholder.com/300x300/EFDFD7/5B4035?text=Wedding+Bandhej' },
-]
+const allProducts = defaultProducts
 
 const SORT_OPTIONS = [
   { value: 'default', label: 'Default' },
@@ -24,19 +18,59 @@ const SORT_OPTIONS = [
 
 function Products() {
   const [searchParams] = useSearchParams()
+  const [allData, setAllData] = useState(allProducts)
   const [products, setProducts] = useState(allProducts)
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all')
   const [selectedSubCategory, setSelectedSubCategory] = useState('all')
   const [sortBy, setSortBy] = useState('default')
+  const [priceBand, setPriceBand] = useState('all')
+  const [viewMode, setViewMode] = useState('grid')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [activeFilterTab, setActiveFilterTab] = useState('category')
+  const [pendingCategory, setPendingCategory] = useState('all')
+  const [pendingSubCategory, setPendingSubCategory] = useState('all')
+  const [pendingSort, setPendingSort] = useState('default')
+  const [pendingPriceBand, setPendingPriceBand] = useState('all')
 
   useEffect(() => {
     let data = JSON.parse(localStorage.getItem('adminProducts') || '[]')
-    if (!data.length) data = allProducts
+    data = normalizeProducts(data)
+    localStorage.setItem('adminProducts', JSON.stringify(data))
+    setAllData(data)
+  }, [])
 
-    let filtered = data
+  useEffect(() => {
+    const syncProducts = () => {
+      try {
+        const data = JSON.parse(localStorage.getItem('adminProducts') || '[]')
+        const normalized = normalizeProducts(data)
+        if (normalized.length) {
+          setAllData(normalized)
+          localStorage.setItem('adminProducts', JSON.stringify(normalized))
+        }
+      } catch (e) {}
+    }
+    window.addEventListener('storage', syncProducts)
+    const timer = window.setInterval(syncProducts, 5000)
+    return () => {
+      window.removeEventListener('storage', syncProducts)
+      window.clearInterval(timer)
+    }
+  }, [])
+
+  useEffect(() => {
+    let filtered = allData
     if (selectedCategory !== 'all') filtered = filtered.filter(p => p.category === selectedCategory)
     if (selectedSubCategory !== 'all') filtered = filtered.filter(p => p.subCategory === selectedSubCategory)
+    if (priceBand !== 'all') {
+      filtered = filtered.filter((p) => {
+        const price = Number(p.price) || 0
+        if (priceBand === 'under-500') return price < 500
+        if (priceBand === '500-1000') return price >= 500 && price <= 1000
+        return price > 1000
+      })
+    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       filtered = filtered.filter(p =>
@@ -51,7 +85,30 @@ function Products() {
     else if (sortBy === 'newest') filtered = [...filtered].sort((a, b) => (b.id || 0) - (a.id || 0))
 
     setProducts(filtered)
-  }, [searchQuery, selectedCategory, selectedSubCategory, sortBy])
+  }, [allData, searchQuery, selectedCategory, selectedSubCategory, sortBy, priceBand])
+
+  const categoryOptions = ['all', ...Array.from(new Set(allData.map((item) => item.category).filter(Boolean)))]
+  const subCategoryOptions = ['all', ...Array.from(new Set(allData.map((item) => item.subCategory).filter(Boolean)))]
+
+  useEffect(() => {
+    setPendingCategory(selectedCategory)
+    setPendingSubCategory(selectedSubCategory)
+    setPendingSort(sortBy)
+    setPendingPriceBand(priceBand)
+  }, [selectedCategory, selectedSubCategory, sortBy, priceBand])
+
+  const applyMobileFilters = () => {
+    setSelectedCategory(pendingCategory)
+    setSelectedSubCategory(pendingSubCategory)
+    setSortBy(pendingSort)
+    setPriceBand(pendingPriceBand)
+    setFilterOpen(false)
+  }
+
+  const openSortPanel = () => {
+    setFilterOpen(true)
+    setActiveFilterTab('sort')
+  }
 
   return (
     <div className="products-page">
@@ -67,12 +124,41 @@ function Products() {
         </ScrollReveal>
 
         <ScrollReveal variant="fadeUp">
+          <div className="products-mobile-toolbar">
+            <button className="toolbar-action" onClick={() => { setFilterOpen(true); setActiveFilterTab('category') }}>
+              <FiFilter />
+              <span>Filter</span>
+            </button>
+            <div className="view-toggle-wrap" role="group" aria-label="View mode">
+              <button
+                className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                onClick={() => setViewMode('grid')}
+                aria-label="Grid view"
+              >
+                <FiGrid />
+              </button>
+              <button
+                className={`view-toggle-btn ${viewMode === 'compact' ? 'active' : ''}`}
+                onClick={() => setViewMode('compact')}
+                aria-label="Compact list view"
+              >
+                <FiList />
+              </button>
+            </div>
+            <button className="toolbar-action" onClick={openSortPanel}>
+              <span>Sort</span>
+              <FiChevronDown />
+            </button>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal variant="fadeUp">
           <div className="filter-section">
             <div className="filter-row">
               <div className="filter-group">
                 <label>Category</label>
                 <div className="filter-chips">
-                  {['all', 'saafa', 'odhna', 'rajputi-suit', 'rajputi-jod', 'bandhej'].map(cat => (
+                  {categoryOptions.map(cat => (
                     <button
                       key={cat}
                       className={`chip ${selectedCategory === cat ? 'active' : ''}`}
@@ -86,7 +172,7 @@ function Products() {
               <div className="filter-group">
                 <label>Sub-Category</label>
                 <div className="filter-chips">
-                  {['all', 'Wedding', 'Daily', 'Premium'].map(sub => (
+                  {subCategoryOptions.map(sub => (
                     <button
                       key={sub}
                       className={`chip ${selectedSubCategory === sub ? 'active' : ''}`}
@@ -109,11 +195,30 @@ function Products() {
                   ))}
                 </select>
               </div>
+              <div className="filter-group">
+                <label>Price</label>
+                <div className="filter-chips">
+                  {[
+                    { value: 'all', label: 'All' },
+                    { value: 'under-500', label: 'Under ₹500' },
+                    { value: '500-1000', label: '₹500 - ₹1000' },
+                    { value: 'above-1000', label: 'Above ₹1000' }
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      className={`chip ${priceBand === item.value ? 'active' : ''}`}
+                      onClick={() => setPriceBand(item.value)}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </ScrollReveal>
 
-        <ScrollReveal variant="stagger" className="products-grid">
+        <ScrollReveal variant="stagger" className={`products-grid ${viewMode === 'compact' ? 'compact' : ''}`}>
           {products.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -127,6 +232,109 @@ function Products() {
           </ScrollReveal>
         )}
       </div>
+
+      {filterOpen && (
+        <div className="mobile-filter-drawer" role="dialog" aria-modal="true">
+          <div className="mobile-filter-overlay" onClick={() => setFilterOpen(false)} aria-hidden="true"></div>
+          <div className="mobile-filter-sheet">
+            <div className="mobile-filter-header">
+              <h3>Filters</h3>
+              <button onClick={() => setFilterOpen(false)}>Close</button>
+            </div>
+            <div className="mobile-filter-body">
+              <aside className="mobile-filter-tabs">
+                {[
+                  { key: 'category', label: 'Category' },
+                  { key: 'subCategory', label: 'Sub Category' },
+                  { key: 'price', label: 'Price' },
+                  { key: 'sort', label: 'Sort' }
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    className={`mobile-filter-tab ${activeFilterTab === item.key ? 'active' : ''}`}
+                    onClick={() => setActiveFilterTab(item.key)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </aside>
+              <div className="mobile-filter-panel">
+                {activeFilterTab === 'category' && (
+                  <div className="mobile-option-list">
+                    {categoryOptions.map((cat) => (
+                      <button
+                        key={cat}
+                        className={`mobile-option ${pendingCategory === cat ? 'active' : ''}`}
+                        onClick={() => { setPendingCategory(cat); setPendingSubCategory('all') }}
+                      >
+                        {cat === 'all' ? 'All' : cat.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {activeFilterTab === 'subCategory' && (
+                  <div className="mobile-option-list">
+                    {subCategoryOptions.map((sub) => (
+                      <button
+                        key={sub}
+                        className={`mobile-option ${pendingSubCategory === sub ? 'active' : ''}`}
+                        onClick={() => setPendingSubCategory(sub)}
+                      >
+                        {sub}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {activeFilterTab === 'price' && (
+                  <div className="mobile-option-list">
+                    {[
+                      { value: 'all', label: 'All Prices' },
+                      { value: 'under-500', label: 'Under ₹500' },
+                      { value: '500-1000', label: '₹500 - ₹1000' },
+                      { value: 'above-1000', label: 'Above ₹1000' }
+                    ].map((item) => (
+                      <button
+                        key={item.value}
+                        className={`mobile-option ${pendingPriceBand === item.value ? 'active' : ''}`}
+                        onClick={() => setPendingPriceBand(item.value)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {activeFilterTab === 'sort' && (
+                  <div className="mobile-option-list">
+                    {SORT_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        className={`mobile-option ${pendingSort === opt.value ? 'active' : ''}`}
+                        onClick={() => setPendingSort(opt.value)}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mobile-filter-footer">
+              <button
+                className="btn-secondary full-width"
+                onClick={() => {
+                  setPendingCategory('all')
+                  setPendingSubCategory('all')
+                  setPendingSort('default')
+                  setPendingPriceBand('all')
+                }}
+              >
+                Clear
+              </button>
+              <button className="btn-primary full-width" onClick={applyMobileFilters}>Apply Filter</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -150,7 +358,14 @@ function ProductCard({ product }) {
         {product.subCategory && <span className="tag">{product.subCategory}</span>}
       </div>
       <Link to={`/product/${product.id}`} className="product-image">
-        <img src={img} alt={product.name} />
+        <img
+          src={img}
+          alt={product.name}
+          onError={(e) => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_1686copy2.jpg?v=1685442942'
+          }}
+        />
       </Link>
       <div className="product-info">
         <h3>{product.name}</h3>

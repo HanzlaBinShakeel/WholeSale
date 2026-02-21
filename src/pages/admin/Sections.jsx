@@ -35,7 +35,7 @@ function AdminSections() {
   const sectionList = [
     { key: 'heroSlider', label: 'Hero Slider', desc: 'Main carousel on homepage' },
     { key: 'topBanner', label: 'Top Promo Banner', desc: 'Above navbar announcement bar' },
-    { key: 'categories', label: 'Categories Grid', desc: 'Shop by category cards' },
+    { key: 'categories', label: 'Collection List', desc: 'Home page collection cards section' },
     { key: 'deals', label: 'Deals Section', desc: 'Special offers block' },
     { key: 'newArrivals', label: 'New Arrivals', desc: 'Latest products grid' },
     { key: 'featured', label: 'Featured Products', desc: 'Highlighted products' },

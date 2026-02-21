@@ -4,32 +4,23 @@ import { useWishlist } from '../context/WishlistContext'
 import { FiHeart } from 'react-icons/fi'
 import ScrollReveal from '../components/ScrollReveal'
 import HeroSlider from '../components/HeroSlider'
+import { defaultCollections, defaultProducts, normalizeCollections, normalizeProducts } from '../data/defaultCatalog'
 import './Home.css'
 
 const SECTIONS_KEY = 'adminSections'
 const BANNERS_KEY = 'adminBanners'
 const PRODUCTS_KEY = 'adminProducts'
 const SETTINGS_KEY = 'adminSettings'
+const COLLECTIONS_KEY = 'adminCollections'
 
-const categories = [
-  { id: 'saafa', name: 'Saafa', icon: '🧣', desc: 'Traditional headwear' },
-  { id: 'odhna', name: 'Odhna', icon: '👗', desc: 'Elegant dupattas' },
-  { id: 'rajputi-suit', name: 'Rajputi Suit', icon: '👔', desc: 'Royal ensembles' },
-  { id: 'rajputi-jod', name: 'Rajputi Jod', icon: '👖', desc: 'Traditional bottoms' },
-  { id: 'bandhej', name: 'Bandhej', icon: '🎀', desc: 'Tie & dye crafts' }
-]
-
-const fallbackProducts = [
-{ id: 1, name: 'Premium Saafa Set', code: 'SAF-001', price: 450, moq: 50, stock: 'available', image: 'https://via.placeholder.com/300x300/FDFD96/3D2F00?text=Premium+Saafa' },
-   { id: 2, name: 'Designer Odhna', code: 'ODH-205', price: 680, moq: 20, stock: 'available', image: 'https://via.placeholder.com/300x300/D4A017/FFFFFF?text=Designer+Odhna' },
-  { id: 3, name: 'Royal Rajputi Suit', code: 'RJS-108', price: 1200, moq: 30, stock: 'limited', image: 'https://via.placeholder.com/300x300/047857/FFFFFF?text=Royal+Suit' },
-  { id: 4, name: 'Traditional Saafa', code: 'SAF-002', price: 350, moq: 100, stock: 'available', image: 'https://via.placeholder.com/300x300/0369A1/FFFFFF?text=Traditional+Saafa' }
-]
+const fallbackCollections = defaultCollections
+const fallbackProducts = defaultProducts
 
 function Home() {
   const [sections, setSections] = useState({ heroSlider: true, categories: true, newArrivals: true, wholesaleNotice: true })
   const [showAdminSlider, setShowAdminSlider] = useState(false)
   const [products, setProducts] = useState([])
+  const [collections, setCollections] = useState(fallbackCollections)
   const [settings, setSettings] = useState({ heroTitle: 'Premium Traditional Textiles', heroSubtitle: 'Saafa, Odhna & Rajputi — curated for wedding seasons and festivals.' })
 
   useEffect(() => {
@@ -37,6 +28,31 @@ function Home() {
       const s = JSON.parse(localStorage.getItem(SECTIONS_KEY) || '{}')
       if (s) setSections(prev => ({ ...prev, ...s }))
     } catch (e) {}
+  }, [])
+
+  useEffect(() => {
+    const syncFromStorage = () => {
+      try {
+        const p = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]')
+        const normalizedProducts = normalizeProducts(p)
+        if (normalizedProducts.length) {
+          setProducts(normalizedProducts.slice(0, 12))
+          localStorage.setItem(PRODUCTS_KEY, JSON.stringify(normalizedProducts))
+        }
+        const c = JSON.parse(localStorage.getItem(COLLECTIONS_KEY) || '[]')
+        const normalizedCollections = normalizeCollections(c)
+        if (normalizedCollections.length) {
+          setCollections(normalizedCollections)
+          localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(normalizedCollections))
+        }
+      } catch (e) {}
+    }
+    window.addEventListener('storage', syncFromStorage)
+    const timer = window.setInterval(syncFromStorage, 5000)
+    return () => {
+      window.removeEventListener('storage', syncFromStorage)
+      window.clearInterval(timer)
+    }
   }, [])
 
   useEffect(() => {
@@ -54,10 +70,21 @@ function Home() {
   useEffect(() => {
     try {
       const p = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]')
-      setProducts(p.length > 0 ? p.slice(0, 8) : fallbackProducts)
+      const normalizedProducts = normalizeProducts(p)
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(normalizedProducts))
+      setProducts(normalizedProducts.slice(0, 12))
     } catch (e) {
       setProducts(fallbackProducts)
     }
+  }, [])
+
+  useEffect(() => {
+    try {
+      const c = JSON.parse(localStorage.getItem(COLLECTIONS_KEY) || '[]')
+      const normalizedCollections = normalizeCollections(c)
+      localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(normalizedCollections))
+      setCollections(normalizedCollections)
+    } catch (e) {}
   }, [])
 
   return (
@@ -103,17 +130,28 @@ function Home() {
           <div className="container">
             <ScrollReveal variant="fadeUp">
               <div className="section-header-elegant">
-                <h2 className="section-title-elegant">Shop by Category</h2>
-                <p className="section-desc">Explore our curated collection of traditional textiles</p>
+                <h2 className="section-title-elegant section-title-luxe">Collection list</h2>
+                <p className="section-desc">Explore signature drops curated for wholesale buyers</p>
               </div>
             </ScrollReveal>
-            <ScrollReveal variant="stagger" className="categories-grid-elegant">
-              {categories.map(cat => (
-                <Link key={cat.id} to={`/products?category=${cat.id}`} className="category-card-elegant">
-                  <div className="category-card-inner">
-                    <span className="category-icon-elegant">{cat.icon}</span>
-                    <h3>{cat.name}</h3>
-                    <p className="category-desc">{cat.desc}</p>
+            <ScrollReveal variant="stagger" className="collections-grid-home">
+              {collections
+                .filter((item) => item.enabled !== false)
+                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                .map((item) => (
+                <Link key={item.id} to="/products" className="collection-card-home">
+                  <div className="collection-card-media">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null
+                        e.currentTarget.src = 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_7127copy.jpg?v=1743675084'
+                      }}
+                    />
+                  </div>
+                  <div className="collection-card-label">
+                    <h3>{item.name}</h3>
                   </div>
                 </Link>
               ))}
@@ -195,7 +233,14 @@ function ProductCard({ product }) {
         {product.subCategory && <span className="tag">{product.subCategory}</span>}
       </div>
       <div className="product-image-elegant">
-        <img src={img} alt={product.name} />
+        <img
+          src={img}
+          alt={product.name}
+          onError={(e) => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_1682copy2.jpg?v=1685443071'
+          }}
+        />
       </div>
       <div className="product-info-elegant">
         <h3>{product.name}</h3>

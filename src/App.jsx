@@ -22,6 +22,7 @@ import AdminPayments from './pages/admin/Payments'
 import AdminBanners from './pages/admin/Banners'
 import AdminSections from './pages/admin/Sections'
 import AdminSettings from './pages/admin/Settings'
+import AdminCollections from './pages/admin/Collections'
 import Wishlist from './pages/Wishlist'
 
 // Components
@@ -95,6 +96,7 @@ function App() {
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="payments" element={<AdminPayments />} />
                   <Route path="banners" element={<AdminBanners />} />
+                  <Route path="collections" element={<AdminCollections />} />
                   <Route path="sections" element={<AdminSections />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>

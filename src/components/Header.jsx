@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
-import { FiSearch, FiShoppingCart, FiHeart, FiMenu, FiX } from 'react-icons/fi'
+import { FiSearch, FiShoppingCart, FiHeart } from 'react-icons/fi'
 import './Header.css'
 
 function Header() {
@@ -11,7 +11,6 @@ function Header() {
   const { getItemCount } = useCart()
   const navigate = useNavigate()
   const [searchOpen, setSearchOpen] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
   const cartCount = getItemCount()
@@ -41,25 +40,25 @@ function Header() {
               {isAdmin && <span className="admin-badge">Admin</span>}
             </Link>
 
-            <nav className={`main-nav ${mobileMenuOpen ? 'open' : ''}`}>
-              <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+            <nav className="main-nav">
+              <Link to="/" className="nav-link">
                 Home
               </Link>
-              <Link to="/products" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+              <Link to="/products" className="nav-link">
                 Products
               </Link>
               {user && (
                 <>
-                  <Link to="/orders" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/orders" className="nav-link">
                     My Orders
                   </Link>
-                  <Link to="/ledger" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/ledger" className="nav-link">
                     Ledger
                   </Link>
                 </>
               )}
               {isAdmin && (
-                <Link to="/admin" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/admin" className="nav-link">
                   Admin
                 </Link>
               )}
@@ -99,13 +98,6 @@ function Header() {
                 </Link>
               )}
 
-              <button
-                className="mobile-menu-btn"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Menu"
-              >
-                {mobileMenuOpen ? <FiX /> : <FiMenu />}
-              </button>
             </div>
           </div>
         </div>

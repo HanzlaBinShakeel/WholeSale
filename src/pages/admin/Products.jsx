@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNotification } from '../../context/NotificationContext'
+import { defaultProducts, normalizeProducts } from '../../data/defaultCatalog'
 import './Admin.css'
 
 const categories = [
@@ -44,10 +45,17 @@ function AdminProducts() {
     const saved = localStorage.getItem('adminProducts')
     if (saved) {
       try {
-        setProducts(JSON.parse(saved))
+        const parsed = JSON.parse(saved)
+        const normalized = normalizeProducts(parsed)
+        localStorage.setItem('adminProducts', JSON.stringify(normalized))
+        setProducts(normalized)
       } catch (e) {
-        setProducts([])
+        setProducts(defaultProducts)
       }
+    } else {
+      const normalized = normalizeProducts(defaultProducts)
+      localStorage.setItem('adminProducts', JSON.stringify(normalized))
+      setProducts(normalized)
     }
   }
 
@@ -70,7 +78,7 @@ function AdminProducts() {
       price: Number(formData.price),
       moq: Number(formData.moq),
       images: formData.images.length > 0 ? formData.images : [
-        'https://via.placeholder.com/600x600/1E40AF/FFFFFF?text=Product+Image'
+        defaultProducts[0].image
       ]
     }
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { FiGrid, FiPackage, FiShoppingCart, FiUsers, FiCreditCard, FiImage, FiLayout, FiSettings, FiSliders } from 'react-icons/fi'
+import { FiGrid, FiPackage, FiShoppingCart, FiUsers, FiCreditCard, FiImage, FiLayout, FiSettings, FiSliders, FiLayers } from 'react-icons/fi'
 import './AdminLayout.css'
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { path: '/admin/users', icon: FiUsers, label: 'Users' },
   { path: '/admin/payments', icon: FiCreditCard, label: 'Payments' },
   { path: '/admin/banners', icon: FiImage, label: 'Banners & Slider' },
+  { path: '/admin/collections', icon: FiLayers, label: 'Collections' },
   { path: '/admin/sections', icon: FiLayout, label: 'Site Sections' },
   { path: '/admin/settings', icon: FiSliders, label: 'Settings (CMS)' },
 ]
