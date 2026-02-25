@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNotification } from '../../context/NotificationContext'
+import { useBanners } from '../../hooks/useData'
 import './Admin.css'
-
-const BANNERS_KEY = 'adminBanners'
 
 function AdminBanners() {
   const { showNotification } = useNotification()
+  const { data: bannersData, save: saveBanners } = useBanners()
   const [banners, setBanners] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingBanner, setEditingBanner] = useState(null)
@@ -19,22 +19,8 @@ function AdminBanners() {
   })
 
   useEffect(() => {
-    loadBanners()
-  }, [])
-
-  const loadBanners = () => {
-    try {
-      const saved = localStorage.getItem(BANNERS_KEY)
-      setBanners(saved ? JSON.parse(saved) : [])
-    } catch (e) {
-      setBanners([])
-    }
-  }
-
-  const saveBanners = (data) => {
-    localStorage.setItem(BANNERS_KEY, JSON.stringify(data))
-    setBanners(data)
-  }
+    setBanners(bannersData || [])
+  }, [bannersData])
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0]
@@ -47,7 +33,7 @@ function AdminBanners() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!formData.image && !formData.title) {
       showNotification('Add at least an image or title', 'error')
@@ -63,10 +49,10 @@ function AdminBanners() {
     }
     if (editingBanner) {
       const updated = banners.map(b => b.id === editingBanner.id ? banner : b)
-      saveBanners(updated)
+      await saveBanners(updated)
       showNotification('Banner updated!', 'success')
     } else {
-      saveBanners([...banners, banner].sort((a, b) => a.order - b.order))
+      await saveBanners([...banners, banner].sort((a, b) => a.order - b.order))
       showNotification('Banner added!', 'success')
     }
     resetForm()
@@ -85,9 +71,9 @@ function AdminBanners() {
     setShowForm(true)
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Delete this banner?')) {
-      saveBanners(banners.filter(b => b.id !== id))
+      await saveBanners(banners.filter(b => b.id !== id))
       showNotification('Banner deleted', 'success')
     }
   }

@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNotification } from '../../context/NotificationContext'
 import { defaultCollections, normalizeCollections } from '../../data/defaultCatalog'
+import { useCollections } from '../../hooks/useData'
 import './Admin.css'
-
-const COLLECTIONS_KEY = 'adminCollections'
 
 const DEFAULT_COLLECTIONS = defaultCollections
 
@@ -26,32 +25,27 @@ function slugify(text = '') {
 
 function AdminCollections() {
   const { showNotification } = useNotification()
+  const { data: collectionsData, save: saveCollections } = useCollections()
   const [collections, setCollections] = useState([])
   const [form, setForm] = useState(newForm)
   const [editingId, setEditingId] = useState(null)
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(COLLECTIONS_KEY) || '[]')
-      const normalized = normalizeCollections(saved)
-      localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(normalized))
-      setCollections(normalized)
-    } catch (e) {
-      setCollections(DEFAULT_COLLECTIONS)
-    }
-  }, [])
+    const list = collectionsData?.length ? normalizeCollections(collectionsData) : normalizeCollections(DEFAULT_COLLECTIONS)
+    setCollections(list)
+  }, [collectionsData])
 
   const sorted = useMemo(
     () => [...collections].sort((a, b) => (a.order || 0) - (b.order || 0)),
     [collections]
   )
 
-  const persist = (next) => {
+  const persist = async (next) => {
     setCollections(next)
-    localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(next))
+    await saveCollections(next)
   }
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
     if (!form.name || !form.image) {
       showNotification('Collection name and image are required', 'error')
@@ -69,10 +63,10 @@ function AdminCollections() {
 
     if (editingId) {
       const next = collections.map((item) => (item.id === editingId ? payload : item))
-      persist(next)
+      await persist(next)
       showNotification('Collection updated', 'success')
     } else {
-      persist([...collections, payload])
+      await persist([...collections, payload])
       showNotification('Collection created', 'success')
     }
 
@@ -91,17 +85,17 @@ function AdminCollections() {
     })
   }
 
-  const onDelete = (id) => {
+  const onDelete = async (id) => {
     if (!window.confirm('Delete this collection?')) return
-    persist(collections.filter((item) => item.id !== id))
+    await persist(collections.filter((item) => item.id !== id))
     showNotification('Collection deleted', 'success')
   }
 
-  const toggleEnabled = (id) => {
+  const toggleEnabled = async (id) => {
     const next = collections.map((item) =>
       item.id === id ? { ...item, enabled: !item.enabled } : item
     )
-    persist(next)
+    await persist(next)
     showNotification('Collection updated', 'success')
   }
 

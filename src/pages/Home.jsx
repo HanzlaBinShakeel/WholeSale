@@ -4,88 +4,53 @@ import { useWishlist } from '../context/WishlistContext'
 import { FiHeart } from 'react-icons/fi'
 import ScrollReveal from '../components/ScrollReveal'
 import HeroSlider from '../components/HeroSlider'
-import { defaultCollections, defaultProducts, normalizeCollections, normalizeProducts } from '../data/defaultCatalog'
+import { defaultCollections, defaultProducts, defaultFabricCategories, normalizeCollections, normalizeProducts } from '../data/defaultCatalog'
+import { useProducts, useCollections, useFabricCategories, useSettings, useSections, useBanners } from '../hooks/useData'
 import './Home.css'
-
-const SECTIONS_KEY = 'adminSections'
-const BANNERS_KEY = 'adminBanners'
-const PRODUCTS_KEY = 'adminProducts'
-const SETTINGS_KEY = 'adminSettings'
-const COLLECTIONS_KEY = 'adminCollections'
 
 const fallbackCollections = defaultCollections
 const fallbackProducts = defaultProducts
 
 function Home() {
-  const [sections, setSections] = useState({ heroSlider: true, categories: true, newArrivals: true, wholesaleNotice: true })
-  const [showAdminSlider, setShowAdminSlider] = useState(false)
+  const { data: sectionsData } = useSections()
+  const { data: productsData } = useProducts()
+  const { data: collectionsData } = useCollections()
+  const { data: fabricData } = useFabricCategories()
+  const { data: settingsData } = useSettings()
+  const { data: bannersData } = useBanners()
+
+  const [sections, setSections] = useState({ heroSlider: true, categories: true, shopByCategory: true, shopByFabric: true, ourStory: true, newArrivals: true, wholesaleNotice: true })
   const [products, setProducts] = useState([])
   const [collections, setCollections] = useState(fallbackCollections)
+  const [fabricCategories, setFabricCategories] = useState(defaultFabricCategories)
   const [settings, setSettings] = useState({ heroTitle: 'Premium Traditional Textiles', heroSubtitle: 'Saafa, Odhna & Rajputi — curated for wedding seasons and festivals.' })
+  const [showAdminSlider, setShowAdminSlider] = useState(false)
 
   useEffect(() => {
-    try {
-      const s = JSON.parse(localStorage.getItem(SECTIONS_KEY) || '{}')
-      if (s) setSections(prev => ({ ...prev, ...s }))
-    } catch (e) {}
-  }, [])
+    if (sectionsData && Object.keys(sectionsData).length) setSections(prev => ({ ...prev, ...sectionsData }))
+  }, [sectionsData])
 
   useEffect(() => {
-    const syncFromStorage = () => {
-      try {
-        const p = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]')
-        const normalizedProducts = normalizeProducts(p)
-        if (normalizedProducts.length) {
-          setProducts(normalizedProducts.slice(0, 12))
-          localStorage.setItem(PRODUCTS_KEY, JSON.stringify(normalizedProducts))
-        }
-        const c = JSON.parse(localStorage.getItem(COLLECTIONS_KEY) || '[]')
-        const normalizedCollections = normalizeCollections(c)
-        if (normalizedCollections.length) {
-          setCollections(normalizedCollections)
-          localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(normalizedCollections))
-        }
-      } catch (e) {}
-    }
-    window.addEventListener('storage', syncFromStorage)
-    const timer = window.setInterval(syncFromStorage, 5000)
-    return () => {
-      window.removeEventListener('storage', syncFromStorage)
-      window.clearInterval(timer)
-    }
-  }, [])
+    const list = productsData?.length ? normalizeProducts(productsData) : fallbackProducts
+    setProducts(list.slice(0, 12))
+  }, [productsData])
 
   useEffect(() => {
-    try {
-      const st = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
-      if (Object.keys(st).length) setSettings(prev => ({ ...prev, ...st }))
-    } catch (e) {}
-  }, [])
+    const list = collectionsData?.length ? normalizeCollections(collectionsData) : fallbackCollections
+    setCollections(list)
+  }, [collectionsData])
 
   useEffect(() => {
-    const banners = JSON.parse(localStorage.getItem(BANNERS_KEY) || '[]')
-    setShowAdminSlider(banners.length > 0 && sections.heroSlider)
-  }, [sections.heroSlider])
+    if (settingsData && Object.keys(settingsData).length) setSettings(prev => ({ ...prev, ...settingsData }))
+  }, [settingsData])
 
   useEffect(() => {
-    try {
-      const p = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]')
-      const normalizedProducts = normalizeProducts(p)
-      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(normalizedProducts))
-      setProducts(normalizedProducts.slice(0, 12))
-    } catch (e) {
-      setProducts(fallbackProducts)
-    }
-  }, [])
+    setShowAdminSlider((bannersData?.length || 0) > 0 && sections.heroSlider)
+  }, [bannersData, sections.heroSlider])
 
   useEffect(() => {
-    try {
-      const c = JSON.parse(localStorage.getItem(COLLECTIONS_KEY) || '[]')
-      const normalizedCollections = normalizeCollections(c)
-      localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(normalizedCollections))
-      setCollections(normalizedCollections)
-    } catch (e) {}
-  }, [])
+    if (fabricData?.length) setFabricCategories(fabricData)
+  }, [fabricData])
 
   return (
     <div className="home-page">
@@ -124,6 +89,80 @@ function Home() {
         )}
         <div className="hero-spacer" aria-hidden="true"></div>
       </div>
+
+      {sections.shopByCategory !== false && (
+        <section className="shop-by-section shop-by-category-section">
+          <div className="container">
+            <ScrollReveal variant="fadeUp">
+              <div className="section-header-elegant">
+                <h2 className="section-title-elegant section-title-luxe">Shop by Category</h2>
+                <p className="section-desc">Browse our curated collections</p>
+              </div>
+            </ScrollReveal>
+            <ScrollReveal variant="stagger" className="shop-by-grid fabric-grid">
+              {collections
+                .filter((item) => item.enabled !== false)
+                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                .slice(0, 4)
+                .map((item) => (
+                  <Link key={item.id} to="/products" className="shop-by-card fabric-card">
+                    <div className="shop-by-media">
+                      <img src={item.image} alt={item.name} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_7127copy.jpg?v=1743675084' }} />
+                      <span className="shop-by-label">{item.name}</span>
+                    </div>
+                  </Link>
+                ))}
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
+
+      {sections.shopByFabric !== false && (
+        <section className="shop-by-section shop-by-fabric-section">
+          <div className="container">
+            <ScrollReveal variant="fadeUp">
+              <div className="section-header-elegant">
+                <h2 className="section-title-elegant section-title-luxe">Shop by Fabric</h2>
+                <p className="section-desc">Find your perfect fabric — Silk, Cotton, Chiffon & more</p>
+              </div>
+            </ScrollReveal>
+            <ScrollReveal variant="stagger" className="shop-by-grid fabric-grid">
+              {fabricCategories
+                .filter((f) => f.enabled !== false)
+                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                .map((item) => (
+                  <Link key={item.id} to={`/products?search=${encodeURIComponent(item.searchTerm || item.name)}`} className="shop-by-card fabric-card">
+                    <div className="shop-by-media">
+                      <img src={item.image} alt={item.name} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_7127copy.jpg?v=1743675084' }} />
+                      <span className="shop-by-label">{item.name}</span>
+                    </div>
+                  </Link>
+                ))}
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
+
+      {sections.ourStory !== false && (
+        <section className="our-story-section">
+          <div className="our-story-wavy-bg">
+            <svg className="our-story-wave" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0,64 C360,120 720,0 1080,64 C1260,96 1380,96 1440,64 L1440,120 L0,120 Z" fill="currentColor" />
+            </svg>
+          </div>
+          <div className="our-story-inner">
+            <ScrollReveal variant="fadeUp">
+              <div className="our-story-shape-block">
+                <span className="our-story-subtitle">{settings.ourStorySubtitle || 'WHOLESALE TRADITIONAL TEXTILES'}</span>
+                <h2 className="our-story-headline">{settings.ourStoryHeadline || 'Where Heritage Meets Wholesale'}</h2>
+                <p className="our-story-body">{settings.ourStoryBody || 'MKT Wholesale brings you Saafa, Odhna, Rajputi suits and traditional ethnic wear—curated for wedding seasons and festivals. We work directly with artisans who hand-block print, weave and dye each piece with generations of skill. From Bandhej to Sanganeri, every fabric carries culture and craftsmanship. We serve retailers and bulk buyers who value quality, authenticity and fair pricing.'}</p>
+                <p className="our-story-tagline">{settings.ourStoryTagline || 'पारंपरिक कपड़े, बेहतरीन सौदा | Traditional textiles, best deal for your store.'}</p>
+                {settings.ourStorySocial && <span className="our-story-social">@{settings.ourStorySocial.replace('@', '')}</span>}
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
 
       {sections.categories !== false && (
         <section className="categories-section">

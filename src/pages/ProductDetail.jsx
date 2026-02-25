@@ -7,9 +7,8 @@ import { useNotification } from '../context/NotificationContext'
 import { useAuth } from '../context/AuthContext'
 import ScrollReveal from '../components/ScrollReveal'
 import { defaultProducts, normalizeProducts } from '../data/defaultCatalog'
+import { useProducts } from '../hooks/useData'
 import './ProductDetail.css'
-
-const PRODUCTS_KEY = 'adminProducts'
 
 function ProductDetail() {
   const { id } = useParams()
@@ -18,19 +17,10 @@ function ProductDetail() {
   const { toggleWishlist, isInWishlist } = useWishlist()
   const { showNotification } = useNotification()
   const { isAuthenticated } = useAuth()
+  const { data: productsData } = useProducts()
 
-  const getLiveProduct = () => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]')
-      const catalog = normalizeProducts(saved)
-      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(catalog))
-      return catalog.find((item) => String(item.id) === String(id)) || catalog[0] || defaultProducts[0]
-    } catch (e) {
-      return defaultProducts.find((item) => String(item.id) === String(id)) || defaultProducts[0]
-    }
-  }
-
-  const product = useMemo(() => getLiveProduct(), [id])
+  const catalog = useMemo(() => productsData?.length ? normalizeProducts(productsData) : defaultProducts, [productsData])
+  const product = useMemo(() => catalog.find((item) => String(item.id) === String(id)) || catalog[0] || defaultProducts[0], [catalog, id])
   const [liveProduct, setLiveProduct] = useState(product)
 
   const productColors = liveProduct.colors?.length ? liveProduct.colors : ['Default']
@@ -47,17 +37,8 @@ function ProductDetail() {
   }, [liveProduct, productImages])
 
   useEffect(() => {
-    const syncProduct = () => {
-      const next = getLiveProduct()
-      setLiveProduct(next)
-    }
-    window.addEventListener('storage', syncProduct)
-    const timer = window.setInterval(syncProduct, 5000)
-    return () => {
-      window.removeEventListener('storage', syncProduct)
-      window.clearInterval(timer)
-    }
-  }, [id])
+    setLiveProduct(product)
+  }, [product])
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {

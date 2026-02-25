@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useBanners } from '../hooks/useData'
 import './HeroSlider.css'
 
-const BANNERS_KEY = 'adminBanners'
-
 function HeroSlider() {
+  const { data: bannersData } = useBanners()
   const [banners, setBanners] = useState([])
   const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(BANNERS_KEY)
-      setBanners(saved ? JSON.parse(saved) : [])
-    } catch (e) {
-      setBanners([])
-    }
-  }, [])
+    setBanners(bannersData || [])
+  }, [bannersData])
 
   useEffect(() => {
     if (banners.length <= 1) return

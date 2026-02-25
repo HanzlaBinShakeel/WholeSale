@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNotification } from '../../context/NotificationContext'
 import { defaultProducts, normalizeProducts } from '../../data/defaultCatalog'
+import { useProducts } from '../../hooks/useData'
 import './Admin.css'
 
 const categories = [
@@ -15,6 +16,7 @@ const stockStatuses = ['available', 'limited', 'out-of-stock']
 
 function AdminProducts() {
   const { showNotification } = useNotification()
+  const { data: productsData, save: saveProducts } = useProducts()
   const [products, setProducts] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
@@ -38,33 +40,11 @@ function AdminProducts() {
   })
 
   useEffect(() => {
-    loadProducts()
-  }, [])
+    const list = productsData?.length ? normalizeProducts(productsData) : normalizeProducts(defaultProducts)
+    setProducts(list)
+  }, [productsData])
 
-  const loadProducts = () => {
-    const saved = localStorage.getItem('adminProducts')
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        const normalized = normalizeProducts(parsed)
-        localStorage.setItem('adminProducts', JSON.stringify(normalized))
-        setProducts(normalized)
-      } catch (e) {
-        setProducts(defaultProducts)
-      }
-    } else {
-      const normalized = normalizeProducts(defaultProducts)
-      localStorage.setItem('adminProducts', JSON.stringify(normalized))
-      setProducts(normalized)
-    }
-  }
-
-  const saveProducts = (newProducts) => {
-    localStorage.setItem('adminProducts', JSON.stringify(newProducts))
-    setProducts(newProducts)
-  }
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!formData.name || !formData.code || !formData.category || !formData.price || !formData.moq) {
@@ -84,10 +64,10 @@ function AdminProducts() {
 
     if (editingProduct) {
       const updated = products.map(p => p.id === editingProduct.id ? productData : p)
-      saveProducts(updated)
+      await saveProducts(updated)
       showNotification('Product updated successfully!', 'success')
     } else {
-      saveProducts([...products, productData])
+      await saveProducts([...products, productData])
       showNotification('Product added successfully!', 'success')
     }
 
@@ -117,10 +97,10 @@ function AdminProducts() {
     setShowForm(true)
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       const updated = products.filter(p => p.id !== id)
-      saveProducts(updated)
+      await saveProducts(updated)
       showNotification('Product deleted successfully!', 'success')
     }
   }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useOrders } from '../hooks/useData'
 import { useAuth } from '../context/AuthContext'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
@@ -53,20 +54,11 @@ function Orders() {
   const [activeTab, setActiveTab] = useState('all')
   const [selectedOrder, setSelectedOrder] = useState(null)
 
+  const { data: ordersData } = useOrders()
+
   useEffect(() => {
-    // Load orders from localStorage or use sample
-    const savedOrders = localStorage.getItem('orders')
-    if (savedOrders) {
-      try {
-        const parsed = JSON.parse(savedOrders)
-        setOrders(parsed.length > 0 ? parsed : sampleOrders)
-      } catch (e) {
-        setOrders(sampleOrders)
-      }
-    } else {
-      setOrders(sampleOrders)
-    }
-  }, [])
+    setOrders((ordersData?.length ? ordersData : sampleOrders))
+  }, [ordersData])
 
   const filteredOrders = orders.filter(order => {
     if (activeTab === 'all') return true

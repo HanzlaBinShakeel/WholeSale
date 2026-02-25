@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNotification } from '../../context/NotificationContext'
+import { useOrders, useLedger } from '../../hooks/useData'
 import './Admin.css'
 
 const statusOptions = [
@@ -12,26 +13,17 @@ const statusOptions = [
 
 function AdminOrders() {
   const { showNotification } = useNotification()
+  const { data: ordersData, save: saveOrders } = useOrders()
+  const { data: ledgerData, save: saveLedger } = useLedger()
   const [orders, setOrders] = useState([])
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [filterStatus, setFilterStatus] = useState('all')
 
   useEffect(() => {
-    loadOrders()
-  }, [])
+    setOrders(ordersData || [])
+  }, [ordersData])
 
-  const loadOrders = () => {
-    const saved = localStorage.getItem('orders')
-    if (saved) {
-      try {
-        setOrders(JSON.parse(saved))
-      } catch (e) {
-        setOrders([])
-      }
-    }
-  }
-
-  const updateOrderStatus = (orderId, newStatus, dispatchNote = '') => {
+  const updateOrderStatus = async (orderId, newStatus, dispatchNote = '') => {
     const updated = orders.map(order => {
       if (order.id === orderId) {
         const updatedTimeline = order.timeline || []
@@ -49,13 +41,13 @@ function AdminOrders() {
       }
       return order
     })
-    localStorage.setItem('orders', JSON.stringify(updated))
+    await saveOrders(updated)
     setOrders(updated)
     showNotification('Order status updated successfully!', 'success')
     setSelectedOrder(null)
   }
 
-  const recordPayment = (orderId, amount, method) => {
+  const recordPayment = async (orderId, amount, method) => {
     const order = orders.find(o => o.id === orderId)
     const updated = orders.map(o => {
       if (o.id === orderId) {
@@ -74,12 +66,12 @@ function AdminOrders() {
       }
       return o
     })
-    localStorage.setItem('orders', JSON.stringify(updated))
+    await saveOrders(updated)
     setOrders(updated)
-    // Sync to ledger for Phase 3
-    const ledger = JSON.parse(localStorage.getItem('ledger') || '[]')
+    // Sync to ledger
+    const ledger = ledgerData || []
     const lastBal = ledger.length ? ledger[ledger.length - 1].balance : 0
-    ledger.push({
+    const ledgerEntry = {
       id: 'TXN-' + Date.now(),
       date: new Date().toISOString().split('T')[0],
       type: 'payment',
@@ -88,12 +80,12 @@ function AdminOrders() {
       amount,
       balance: lastBal - amount,
       paymentMethod: method
-    })
-    localStorage.setItem('ledger', JSON.stringify(ledger))
+    }
+    await saveLedger([...ledger, ledgerEntry])
     showNotification('Payment recorded!', 'success')
   }
 
-  const updatePartialDispatch = (orderId, itemIndex, dispatchedQty) => {
+  const updatePartialDispatch = async (orderId, itemIndex, dispatchedQty) => {
     const updated = orders.map(order => {
       if (order.id === orderId) {
         const updatedItems = [...order.items]
@@ -112,7 +104,7 @@ function AdminOrders() {
       }
       return order
     })
-    localStorage.setItem('orders', JSON.stringify(updated))
+    await saveOrders(updated)
     setOrders(updated)
     showNotification('Partial dispatch updated!', 'success')
   }

@@ -23,7 +23,7 @@ function BottomNav() {
     { to: '/products', icon: FiGrid, label: 'Products' },
     { to: '/wishlist', icon: FiHeart, label: 'Wishlist', badge: wishlistCount },
     { to: '/cart', icon: FiShoppingCart, label: 'Cart', badge: cartCount },
-    { to: user ? '/orders' : '/login', icon: FiUser, label: user ? 'Orders' : 'Login' },
+    { to: user ? '/account' : '/login', icon: FiUser, label: user ? 'Account' : 'Login' },
   ]
 
   return (
@@ -31,7 +31,8 @@ function BottomNav() {
       <div className="bottom-nav-inner">
         {navItems.map(({ to, icon: Icon, label, badge }) => {
           const isActive = location.pathname === to || 
-            (to === '/products' && location.pathname.startsWith('/product'))
+            (to === '/products' && location.pathname.startsWith('/product')) ||
+            (to === '/account' && location.pathname.startsWith('/account'))
           return (
             <Link
               key={to}

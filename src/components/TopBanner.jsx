@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useSections } from '../hooks/useData'
 import './TopBanner.css'
 
 const PROMOS = [
@@ -9,14 +10,12 @@ const PROMOS = [
 ]
 
 function TopBanner() {
+  const { data: sectionsData } = useSections()
   const [visible, setVisible] = useState(true)
 
-  React.useEffect(() => {
-    try {
-      const s = JSON.parse(localStorage.getItem('adminSections') || '{}')
-      if (s.topBanner === false) setVisible(false)
-    } catch (e) {}
-  }, [])
+  useEffect(() => {
+    if (sectionsData?.topBanner === false) setVisible(false)
+  }, [sectionsData])
 
   if (!visible) return null
 

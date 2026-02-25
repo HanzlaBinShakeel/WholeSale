@@ -1,120 +1,61 @@
 import React, { useState, useEffect } from 'react'
 import { useNotification } from '../../context/NotificationContext'
+import { useUsers } from '../../hooks/useData'
 import './Admin.css'
+
+const FALLBACK_USERS = [
+  { id: '1', shopName: 'Rajput Traders', buyerName: 'Rajesh Kumar', mobile: '9876543210', city: 'Jaipur', businessType: 'Dealer', gst: '', status: 'approved', registeredDate: '2024-01-15' },
+  { id: '2', shopName: 'New Shop', buyerName: 'New Buyer', mobile: '9876543211', city: 'Delhi', businessType: 'Shop', gst: '', status: 'pending', registeredDate: '2024-01-25' }
+]
 
 function AdminUsers() {
   const { showNotification } = useNotification()
-  const [users, setUsers] = useState([])
+  const { data: usersData, save: saveUsers } = useUsers()
+  const [users, setUsers] = useState(FALLBACK_USERS)
   const [filterStatus, setFilterStatus] = useState('all')
-  const [autoApprove, setAutoApprove] = useState(false)
+  const [autoApprove, setAutoApprove] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('autoApprove') || 'false')
+    } catch { return false }
+  })
 
   useEffect(() => {
-    loadUsers()
-    const saved = localStorage.getItem('autoApprove')
-    if (saved) {
-      setAutoApprove(JSON.parse(saved))
-    }
-  }, [])
+    setUsers(usersData?.length ? usersData : FALLBACK_USERS)
+  }, [usersData])
 
-  const loadUsers = () => {
-    // Load from AuthContext demo data and localStorage
-    const saved = localStorage.getItem('users')
-    if (saved) {
-      try {
-        setUsers(JSON.parse(saved))
-      } catch (e) {
-        // Sample users
-        setUsers([
-          {
-            id: '1',
-            shopName: 'Rajput Traders',
-            buyerName: 'Rajesh Kumar',
-            mobile: '9876543210',
-            city: 'Jaipur',
-            businessType: 'Dealer',
-            gst: '',
-            status: 'approved',
-            registeredDate: '2024-01-15'
-          },
-          {
-            id: '2',
-            shopName: 'New Shop',
-            buyerName: 'New Buyer',
-            mobile: '9876543211',
-            city: 'Delhi',
-            businessType: 'Shop',
-            gst: '',
-            status: 'pending',
-            registeredDate: '2024-01-25'
-          }
-        ])
-      }
-    } else {
-      setUsers([
-        {
-          id: '1',
-          shopName: 'Rajput Traders',
-          buyerName: 'Rajesh Kumar',
-          mobile: '9876543210',
-          city: 'Jaipur',
-          businessType: 'Dealer',
-          gst: '',
-          status: 'approved',
-          registeredDate: '2024-01-15'
-        },
-        {
-          id: '2',
-          shopName: 'New Shop',
-          buyerName: 'New Buyer',
-          mobile: '9876543211',
-          city: 'Delhi',
-          businessType: 'Shop',
-          gst: '',
-          status: 'pending',
-          registeredDate: '2024-01-25'
-        }
-      ])
-    }
-  }
-
-  const saveUsers = (updatedUsers) => {
-    localStorage.setItem('users', JSON.stringify(updatedUsers))
-    setUsers(updatedUsers)
-  }
-
-  const handleApprove = (userId) => {
+  const handleApprove = async (userId) => {
     const updated = users.map(user =>
       user.id === userId ? { ...user, status: 'approved' } : user
     )
-    saveUsers(updated)
+    await saveUsers(updated)
     showNotification('User approved successfully!', 'success')
   }
 
-  const handleReject = (userId) => {
+  const handleReject = async (userId) => {
     if (window.confirm('Are you sure you want to reject this user?')) {
       const updated = users.map(user =>
         user.id === userId ? { ...user, status: 'rejected' } : user
       )
-      saveUsers(updated)
+      await saveUsers(updated)
       showNotification('User rejected', 'success')
     }
   }
 
-  const handleBlock = (userId) => {
+  const handleBlock = async (userId) => {
     if (window.confirm('Are you sure you want to block this user?')) {
       const updated = users.map(user =>
         user.id === userId ? { ...user, status: 'blocked' } : user
       )
-      saveUsers(updated)
+      await saveUsers(updated)
       showNotification('User blocked', 'success')
     }
   }
 
-  const handleUnblock = (userId) => {
+  const handleUnblock = async (userId) => {
     const updated = users.map(user =>
       user.id === userId ? { ...user, status: 'approved' } : user
     )
-    saveUsers(updated)
+    await saveUsers(updated)
     showNotification('User unblocked', 'success')
   }
 

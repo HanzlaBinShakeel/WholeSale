@@ -1,12 +1,27 @@
-/* ═══ FOOTER - Elegant & Clean ═══ */
+/* ═══ FOOTER - Elegant & Clean with Background ═══ */
 
 .app-footer {
-  background: linear-gradient(180deg, var(--color-primary) 0%, #020617 100%);
   color: white;
   padding: var(--space-12) 0 var(--space-6);
   padding-bottom: calc(var(--space-6) + var(--safe-bottom));
   margin-top: auto;
   position: relative;
+  overflow: hidden;
+}
+
+.footer-bg-image {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(180deg, rgba(74, 55, 40, 0.92) 0%, rgba(20, 15, 12, 0.97) 100%),
+    url('https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_7127copy.jpg?v=1743675084') center center / cover no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.footer-inner {
+  position: relative;
+  z-index: 1;
 }
 
 .footer-content {
@@ -81,4 +96,38 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.875rem;
+}
+
+/* WhatsApp - Large icon in Contact corner */
+.footer-contact-section {
+  position: relative;
+}
+
+.footer-whatsapp-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-top: var(--space-4);
+  background: #25D366;
+  color: white !important;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+}
+
+.footer-whatsapp-icon:hover {
+  background: #20bd5a;
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5);
+}
+
+.footer-whatsapp-icon svg {
+  font-size: 2rem;
+}
+
+.footer-bottom .footer-copyright {
+  margin: 0;
 }

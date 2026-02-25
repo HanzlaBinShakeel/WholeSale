@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
 import { WishlistProvider } from './context/WishlistContext'
 import { AuthProvider } from './context/AuthContext'
@@ -24,6 +24,8 @@ import AdminSections from './pages/admin/Sections'
 import AdminSettings from './pages/admin/Settings'
 import AdminCollections from './pages/admin/Collections'
 import Wishlist from './pages/Wishlist'
+import UserLayout from './pages/user/UserLayout'
+import UserDashboard from './pages/user/UserDashboard'
 
 // Components
 import TopBanner from './components/TopBanner'
@@ -73,22 +75,13 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/login" element={<Login />} />
-                <Route 
-                  path="/orders" 
-                  element={
-                    <ProtectedRoute>
-                      <Orders />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/ledger" 
-                  element={
-                    <ProtectedRoute>
-                      <Ledger />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/orders" element={<Navigate to="/account/orders" replace />} />
+                <Route path="/ledger" element={<Navigate to="/account/ledger" replace />} />
+                <Route path="/account" element={<ProtectedRoute><UserLayout /></ProtectedRoute>}>
+                  <Route index element={<UserDashboard />} />
+                  <Route path="orders" element={<Orders />} />
+                  <Route path="ledger" element={<Ledger />} />
+                </Route>
                 <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="products" element={<AdminProducts />} />

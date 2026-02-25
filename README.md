@@ -22,6 +22,22 @@ npm run preview
 
 The app will be available at `http://localhost:3000`
 
+## 🗄️ Supabase Setup (Realtime Database)
+
+1. **Create `.env`** (copy from `.env.example`):
+   ```
+   VITE_SUPABASE_URL=https://your-project-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
+
+2. **Run schema** in Supabase SQL Editor (Dashboard → SQL Editor):
+   - Open `supabase/schema.sql` and run its contents
+
+3. **Seed database**: Admin Panel → Settings → "Seed Database" button
+   - Seeds products, collections, fabric categories, users, orders, ledger, settings
+
+4. **Realtime**: All admin CMS changes (products, collections, banners, sections, settings, orders, ledger, users) sync in realtime when Supabase is configured.
+
 ## 📱 Mobile App Setup (Capacitor)
 
 ### Install Capacitor

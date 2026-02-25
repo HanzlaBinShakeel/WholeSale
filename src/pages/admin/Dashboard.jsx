@@ -1,28 +1,77 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useOrders, useUsers, useProducts } from '../../hooks/useData'
 import './Admin.css'
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-function getRecent7DaySeries(orders = []) {
+function getOrderTimestamp(o) {
+  const ts = o.createdAt || o.date || o.createdOn
+  return ts ? new Date(ts).getTime() : NaN
+}
+
+function getSeriesByPeriod(orders = [], period = '7d') {
   const points = []
-  for (let i = 6; i >= 0; i -= 1) {
-    const d = new Date()
-    d.setHours(0, 0, 0, 0)
-    d.setDate(d.getDate() - i)
-    const start = d.getTime()
-    const end = start + 86400000
-    const dayOrders = orders.filter((o) => {
-      const ts = o.createdAt || o.date || o.createdOn
-      const time = ts ? new Date(ts).getTime() : NaN
-      return Number.isFinite(time) && time >= start && time < end
-    })
-    points.push({
-      label: DAY_LABELS[d.getDay()],
-      orders: dayOrders.length,
-      revenue: dayOrders.reduce((sum, item) => sum + (Number(item.total) || 0), 0)
-    })
+
+  if (period === '7d') {
+    for (let i = 6; i >= 0; i -= 1) {
+      const d = new Date()
+      d.setHours(0, 0, 0, 0)
+      d.setDate(d.getDate() - i)
+      const start = d.getTime()
+      const end = start + 86400000
+      const dayOrders = orders.filter((o) => {
+        const time = getOrderTimestamp(o)
+        return Number.isFinite(time) && time >= start && time < end
+      })
+      points.push({
+        label: DAY_LABELS[d.getDay()],
+        orders: dayOrders.length,
+        revenue: dayOrders.reduce((sum, item) => sum + (Number(item.total) || 0), 0)
+      })
+    }
+  } else if (period === '30d') {
+    for (let i = 3; i >= 0; i -= 1) {
+      const weekEnd = new Date()
+      weekEnd.setHours(23, 59, 59, 999)
+      weekEnd.setDate(weekEnd.getDate() - (i * 7))
+      const weekStart = new Date(weekEnd)
+      weekStart.setDate(weekStart.getDate() - 6)
+      weekStart.setHours(0, 0, 0, 0)
+      const start = weekStart.getTime()
+      const end = weekEnd.getTime() + 1
+      const weekOrders = orders.filter((o) => {
+        const time = getOrderTimestamp(o)
+        return Number.isFinite(time) && time >= start && time < end
+      })
+      const label = `W${4 - i}`
+      points.push({
+        label,
+        fullLabel: `${weekStart.getDate()}/${weekStart.getMonth() + 1} - ${weekEnd.getDate()}/${weekEnd.getMonth() + 1}`,
+        orders: weekOrders.length,
+        revenue: weekOrders.reduce((sum, item) => sum + (Number(item.total) || 0), 0)
+      })
+    }
+  } else if (period === '1y') {
+    const now = new Date()
+    for (let i = 11; i >= 0; i -= 1) {
+      const m = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const start = m.getTime()
+      const end = new Date(m.getFullYear(), m.getMonth() + 1, 0, 23, 59, 59, 999).getTime() + 1
+      const monthOrders = orders.filter((o) => {
+        const time = getOrderTimestamp(o)
+        return Number.isFinite(time) && time >= start && time < end
+      })
+      points.push({
+        label: MONTH_LABELS[m.getMonth()],
+        fullLabel: `${MONTH_LABELS[m.getMonth()]} ${m.getFullYear()}`,
+        orders: monthOrders.length,
+        revenue: monthOrders.reduce((sum, item) => sum + (Number(item.total) || 0), 0)
+      })
+    }
   }
+
   return points
 }
 
@@ -37,7 +86,16 @@ function toLinePath(values, width, height) {
     .join(' ')
 }
 
+const PERIODS = [
+  { key: '7d', label: '7 Days' },
+  { key: '30d', label: '1 Month' },
+  { key: '1y', label: '1 Year' }
+]
+
 function AdminDashboard() {
+  const { data: ordersData } = useOrders()
+  const { data: usersData } = useUsers()
+  const { data: productsData } = useProducts()
   const [stats, setStats] = useState({
     totalOrders: 0,
     activeBuyers: 0,
@@ -48,9 +106,12 @@ function AdminDashboard() {
     outOfStock: 0
   })
   const [recentOrders, setRecentOrders] = useState([])
-  const [series, setSeries] = useState([])
   const [liveProducts, setLiveProducts] = useState([])
   const [lastSync, setLastSync] = useState(new Date())
+  const [revenuePeriod, setRevenuePeriod] = useState('7d')
+  const [ordersPeriod, setOrdersPeriod] = useState('7d')
+  const [revenueSeries, setRevenueSeries] = useState([])
+  const [ordersSeries, setOrdersSeries] = useState([])
 
   useEffect(() => {
     loadData()
@@ -61,12 +122,12 @@ function AdminDashboard() {
       window.removeEventListener('storage', onStorage)
       window.clearInterval(timer)
     }
-  }, [])
+  }, [revenuePeriod, ordersPeriod, ordersData, usersData, productsData])
 
   const loadData = () => {
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]')
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const products = JSON.parse(localStorage.getItem('adminProducts') || '[]')
+    const orders = ordersData || []
+    const users = usersData || []
+    const products = productsData || []
 
     const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0)
     const pendingOrders = orders.filter(o => ['received', 'packed'].includes(o.status)).length
@@ -85,7 +146,8 @@ function AdminDashboard() {
     })
     setRecentOrders(orders.slice(0, 5))
     setLiveProducts(products.slice(0, 6))
-    setSeries(getRecent7DaySeries(orders))
+    setRevenueSeries(getSeriesByPeriod(orders, revenuePeriod))
+    setOrdersSeries(getSeriesByPeriod(orders, ordersPeriod))
     setLastSync(new Date())
   }
 
@@ -99,10 +161,13 @@ function AdminDashboard() {
     return map[status] || status
   }
 
-  const revenueValues = series.map((item) => item.revenue)
-  const ordersValues = series.map((item) => item.orders)
-  const linePath = toLinePath(revenueValues, 320, 120)
-  const maxOrders = Math.max(...ordersValues, 1)
+  const revenueValues = revenueSeries.map((item) => item.revenue)
+  const ordersValues = ordersSeries.map((item) => item.orders)
+  const linePath = toLinePath(revenueValues.length ? revenueValues : [0], 320, 120)
+  const maxOrders = Math.max(...(ordersValues.length ? ordersValues : [0]), 1)
+
+  const periodRevenue = revenueSeries.reduce((s, p) => s + p.revenue, 0)
+  const periodOrders = ordersSeries.reduce((s, p) => s + p.orders, 0)
 
   return (
     <div className="admin-dashboard">
@@ -160,8 +225,23 @@ function AdminDashboard() {
           <div className="admin-graph-grid">
             <div className="admin-graph-card">
               <div className="graph-header">
-                <h2>Revenue Trend (7 Days)</h2>
-                <span>Live sync: {lastSync.toLocaleTimeString('en-IN')}</span>
+                <h2>Revenue Trend</h2>
+                <div className="graph-header-right">
+                  <div className="period-tabs">
+                    {PERIODS.map((p) => (
+                      <button
+                        key={p.key}
+                        type="button"
+                        className={`period-tab ${revenuePeriod === p.key ? 'active' : ''}`}
+                        onClick={() => setRevenuePeriod(p.key)}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                  <span className="graph-period-summary">{formatRevenue(periodRevenue)} in {PERIODS.find(p => p.key === revenuePeriod)?.label}</span>
+                  <span className="graph-sync">Live: {lastSync.toLocaleTimeString('en-IN')}</span>
+                </div>
               </div>
               <svg viewBox="0 0 320 120" className="revenue-line-chart" role="img" aria-label="Revenue trend chart">
                 <defs>
@@ -171,27 +251,41 @@ function AdminDashboard() {
                   </linearGradient>
                 </defs>
                 <path d={linePath} fill="none" stroke="#8f5f4f" strokeWidth="3" strokeLinecap="round" />
-                {series.map((item, idx) => {
-                  const x = (idx / (series.length - 1 || 1)) * 320
+                {revenueSeries.map((item, idx) => {
+                  const x = (idx / (revenueSeries.length - 1 || 1)) * 320
                   const y = 120 - ((item.revenue || 0) / Math.max(...revenueValues, 1)) * 120
-                  return <circle key={item.label} cx={x} cy={y} r="3.5" fill="#8f5f4f" />
+                  return <circle key={`${item.label}-${idx}`} cx={x} cy={y} r="3.5" fill="#8f5f4f" />
                 })}
               </svg>
               <div className="graph-axis-labels">
-                {series.map((item) => <span key={item.label}>{item.label}</span>)}
+                {revenueSeries.map((item) => <span key={item.label} title={item.fullLabel}>{item.label}</span>)}
               </div>
             </div>
             <div className="admin-graph-card">
               <div className="graph-header">
-                <h2>Orders Activity (7 Days)</h2>
+                <h2>Orders Activity</h2>
+                <div className="graph-header-right">
+                  <div className="period-tabs">
+                    {PERIODS.map((p) => (
+                      <button
+                        key={p.key}
+                        type="button"
+                        className={`period-tab ${ordersPeriod === p.key ? 'active' : ''}`}
+                        onClick={() => setOrdersPeriod(p.key)}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                  <span className="graph-period-summary">{periodOrders} orders in {PERIODS.find(p => p.key === ordersPeriod)?.label}</span>
+                </div>
               </div>
               <div className="order-bars">
-                {series.map((item) => (
-                  <div key={item.label} className="order-bar-item">
+                {ordersSeries.map((item, idx) => (
+                  <div key={`${item.label}-${idx}`} className="order-bar-item" title={`${item.orders} orders • ₹${item.revenue?.toLocaleString('en-IN') || '0'}`}>
                     <div
                       className="order-bar"
                       style={{ height: `${Math.max(10, (item.orders / maxOrders) * 100)}%` }}
-                      title={`${item.orders} orders`}
                     ></div>
                     <span>{item.label}</span>
                   </div>

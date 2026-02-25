@@ -4,26 +4,27 @@
   "description": "MKT Wholesale B2B Marketplace - React App",
   "private": true,
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.0",
-    "react-icons": "^4.12.0",
+    "@capacitor/android": "^5.5.1",
+    "@capacitor/app": "^5.0.6",
+    "@capacitor/core": "^5.5.1",
+    "@capacitor/haptics": "^5.0.6",
+    "@capacitor/ios": "^5.5.1",
+    "@capacitor/keyboard": "^5.0.6",
+    "@capacitor/status-bar": "^5.0.6",
+    "@supabase/supabase-js": "^2.97.0",
     "axios": "^1.6.2",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
-    "@capacitor/core": "^5.5.1",
-    "@capacitor/app": "^5.0.6",
-    "@capacitor/haptics": "^5.0.6",
-    "@capacitor/keyboard": "^5.0.6",
-    "@capacitor/status-bar": "^5.0.6",
-    "@capacitor/ios": "^5.5.1",
-    "@capacitor/android": "^5.5.1"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.12.0",
+    "react-router-dom": "^6.20.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.0.8",
     "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17"
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8"
   },
   "scripts": {
     "dev": "vite",

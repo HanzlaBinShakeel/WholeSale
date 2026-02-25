@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useLedger } from '../hooks/useData'
 import './Ledger.css'
 
 // Sample ledger data
@@ -61,20 +62,11 @@ function Ledger() {
     pendingBalance: 0
   })
 
+  const { data: ledgerData } = useLedger()
+
   useEffect(() => {
-    // Load ledger from localStorage or use sample
-    const savedLedger = localStorage.getItem('ledger')
-    if (savedLedger) {
-      try {
-        const parsed = JSON.parse(savedLedger)
-        setLedger(parsed.length > 0 ? parsed : sampleLedger)
-      } catch (e) {
-        setLedger(sampleLedger)
-      }
-    } else {
-      setLedger(sampleLedger)
-    }
-  }, [])
+    setLedger(ledgerData?.length ? ledgerData : sampleLedger)
+  }, [ledgerData])
 
   useEffect(() => {
     // Calculate summary

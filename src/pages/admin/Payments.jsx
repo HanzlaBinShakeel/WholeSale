@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useNotification } from '../../context/NotificationContext'
+import { FiEdit2, FiTrash2 } from 'react-icons/fi'
+import { useLedger, useAdvancePercent } from '../../hooks/useData'
 import './Admin.css'
 
 function AdminPayments() {
   const { showNotification } = useNotification()
+  const { data: ledgerData, save: saveLedger } = useLedger()
+  const { data: advancePercentValue, save: saveAdvancePercent } = useAdvancePercent()
+  const [advancePercent, setAdvancePercent] = useState(20)
   const [ledger, setLedger] = useState([])
   const [showPaymentForm, setShowPaymentForm] = useState(false)
+  const [editingEntry, setEditingEntry] = useState(null)
   const [paymentData, setPaymentData] = useState({
     orderId: '',
     amount: '',
@@ -14,26 +20,14 @@ function AdminPayments() {
   })
 
   useEffect(() => {
-    loadLedger()
-  }, [])
+    setLedger(ledgerData || [])
+  }, [ledgerData])
 
-  const loadLedger = () => {
-    const saved = localStorage.getItem('ledger')
-    if (saved) {
-      try {
-        setLedger(JSON.parse(saved))
-      } catch (e) {
-        setLedger([])
-      }
-    }
-  }
+  useEffect(() => {
+    setAdvancePercent(advancePercentValue ?? 20)
+  }, [advancePercentValue])
 
-  const saveLedger = (updatedLedger) => {
-    localStorage.setItem('ledger', JSON.stringify(updatedLedger))
-    setLedger(updatedLedger)
-  }
-
-  const handleAddPayment = (e) => {
+  const handleAddPayment = async (e) => {
     e.preventDefault()
     
     if (!paymentData.orderId || !paymentData.amount) {
@@ -59,7 +53,7 @@ function AdminPayments() {
     newPayment.balance = currentBalance - newPayment.amount
 
     const updated = [...ledger, newPayment]
-    saveLedger(updated)
+    await saveLedger(updated)
     showNotification('Payment added successfully!', 'success')
     setShowPaymentForm(false)
     setPaymentData({
@@ -70,7 +64,7 @@ function AdminPayments() {
     })
   }
 
-  const handleAddAdjustment = () => {
+  const handleAddAdjustment = async () => {
     const orderId = prompt('Enter Order ID:')
     const amount = prompt('Enter adjustment amount (negative for discount):')
     const notes = prompt('Enter notes:')
@@ -91,9 +85,70 @@ function AdminPayments() {
       adjustment.balance = currentBalance + adjustment.amount
 
       const updated = [...ledger, adjustment]
-      saveLedger(updated)
+      await saveLedger(updated)
       showNotification('Adjustment added!', 'success')
     }
+  }
+
+  const handleEdit = (transaction, idx) => {
+    setEditingEntry({
+      idx,
+      ...transaction
+    })
+  }
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault()
+    if (!editingEntry) return
+    const { idx, id, date, type, orderId, description, amount, notes } = editingEntry
+    const parsedAmount = parseFloat(amount)
+    if (isNaN(parsedAmount)) {
+      showNotification('Invalid amount', 'error')
+      return
+    }
+
+    const updated = [...ledger]
+    updated[idx] = {
+      id,
+      date,
+      type,
+      orderId,
+      description: description || (type === 'adjustment' ? 'Adjustment' : description),
+      amount: parsedAmount,
+      notes: notes || ''
+    }
+
+    // Recalculate balances from this point onward
+    const prevBalance = idx > 0 ? updated[idx - 1].balance : 0
+    let running = prevBalance
+    for (let i = idx; i < updated.length; i++) {
+      const t = updated[i]
+      if (t.type === 'bill') running += Math.abs(t.amount)
+      else if (t.type === 'payment') running -= Math.abs(t.amount)
+      else running += t.amount
+      updated[i] = { ...updated[i], balance: running }
+    }
+
+    await saveLedger(updated)
+    showNotification('Entry updated!', 'success')
+    setEditingEntry(null)
+  }
+
+  const handleDelete = async (idx) => {
+    if (!window.confirm('Delete this entry? Balances will be recalculated.')) return
+    const updated = ledger.filter((_, i) => i !== idx)
+
+    // Recalculate all balances
+    let running = 0
+    const fixed = updated.map((t) => {
+      if (t.type === 'bill') running += Math.abs(t.amount)
+      else if (t.type === 'payment') running -= Math.abs(t.amount)
+      else running += t.amount
+      return { ...t, balance: running }
+    })
+
+    await saveLedger(fixed)
+    showNotification('Entry deleted!', 'success')
   }
 
   const formatDate = (dateString) => {
@@ -104,12 +159,10 @@ function AdminPayments() {
     })
   }
 
-  const [advancePercent, setAdvancePercent] = useState(parseInt(localStorage.getItem('advancePercent') || '20', 10))
-
-  const saveAdvancePercent = (val) => {
-    const n = Math.max(0, Math.min(50, parseInt(val) || 20))
+  const handleAdvancePercentBlur = async (val) => {
+    const n = Math.max(0, Math.min(50, parseInt(val, 10) || 20))
     setAdvancePercent(n)
-    localStorage.setItem('advancePercent', String(n))
+    await saveAdvancePercent(n)
     showNotification('Advance % updated', 'success')
   }
 
@@ -149,7 +202,7 @@ function AdminPayments() {
               max="50"
               value={advancePercent}
               onChange={(e) => setAdvancePercent(parseInt(e.target.value) || 20)}
-              onBlur={(e) => saveAdvancePercent(e.target.value)}
+              onBlur={(e) => handleAdvancePercentBlur(e.target.value)}
             />
             <span>%</span>
           </div>
@@ -239,6 +292,84 @@ function AdminPayments() {
           </div>
         )}
 
+        {editingEntry && (
+          <div className="admin-form-card">
+            <div className="form-header">
+              <h2>Edit Entry</h2>
+              <button className="close-btn" onClick={() => setEditingEntry(null)}>×</button>
+            </div>
+            <form onSubmit={handleSaveEdit} className="admin-form">
+              <div className="form-group">
+                <label>Date *</label>
+                <input
+                  type="date"
+                  value={editingEntry.date}
+                  onChange={(e) => setEditingEntry({ ...editingEntry, date: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Type *</label>
+                <select
+                  value={editingEntry.type}
+                  onChange={(e) => setEditingEntry({ ...editingEntry, type: e.target.value })}
+                  required
+                >
+                  <option value="bill">Bill</option>
+                  <option value="payment">Payment</option>
+                  <option value="adjustment">Adjustment</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Order ID *</label>
+                <input
+                  type="text"
+                  value={editingEntry.orderId}
+                  onChange={(e) => setEditingEntry({ ...editingEntry, orderId: e.target.value })}
+                  placeholder="ORD-2024-001"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <input
+                  type="text"
+                  value={editingEntry.description || ''}
+                  onChange={(e) => setEditingEntry({ ...editingEntry, description: e.target.value })}
+                  placeholder="Description"
+                />
+              </div>
+              <div className="form-group">
+                <label>Amount (₹) *</label>
+                <input
+                  type="number"
+                  value={editingEntry.amount}
+                  onChange={(e) => setEditingEntry({ ...editingEntry, amount: e.target.value })}
+                  step="0.01"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea
+                  value={editingEntry.notes || ''}
+                  onChange={(e) => setEditingEntry({ ...editingEntry, notes: e.target.value })}
+                  placeholder="Notes..."
+                  rows="2"
+                />
+              </div>
+              <div className="form-actions">
+                <button type="button" className="btn-secondary" onClick={() => setEditingEntry(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* Ledger Table */}
         <div className="ledger-table-container">
           <h2>Payment Ledger</h2>
@@ -253,12 +384,13 @@ function AdminPayments() {
                   <th>Amount</th>
                   <th>Balance</th>
                   <th>Notes</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {ledger.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="no-data">
+                    <td colSpan="8" className="no-data">
                       No transactions found
                     </td>
                   </tr>
@@ -283,6 +415,26 @@ function AdminPayments() {
                         </td>
                         <td>₹{transaction.balance.toLocaleString('en-IN')}</td>
                         <td>{transaction.notes || '-'}</td>
+                        <td>
+                          <div className="ledger-actions">
+                            <button
+                              type="button"
+                              className="ledger-action-btn edit"
+                              onClick={() => handleEdit(transaction, idx)}
+                              title="Edit"
+                            >
+                              <FiEdit2 />
+                            </button>
+                            <button
+                              type="button"
+                              className="ledger-action-btn delete"
+                              onClick={() => handleDelete(idx)}
+                              title="Delete"
+                            >
+                              <FiTrash2 />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     )
                   })

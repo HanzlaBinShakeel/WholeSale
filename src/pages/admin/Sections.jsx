@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useNotification } from '../../context/NotificationContext'
+import { useSections } from '../../hooks/useData'
 import './Admin.css'
-
-const SECTIONS_KEY = 'adminSections'
 
 const DEFAULT_SECTIONS = {
   heroSlider: true,
   topBanner: true,
+  shopByCategory: true,
+  shopByFabric: true,
   categories: true,
+  ourStory: true,
   deals: true,
   newArrivals: true,
   featured: true,
@@ -16,26 +18,27 @@ const DEFAULT_SECTIONS = {
 
 function AdminSections() {
   const { showNotification } = useNotification()
+  const { data: sectionsData, save: saveSections } = useSections()
   const [sections, setSections] = useState(DEFAULT_SECTIONS)
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(SECTIONS_KEY)
-      if (saved) setSections({ ...DEFAULT_SECTIONS, ...JSON.parse(saved) })
-    } catch (e) {}
-  }, [])
+    if (sectionsData && Object.keys(sectionsData).length) setSections(prev => ({ ...DEFAULT_SECTIONS, ...sectionsData }))
+  }, [sectionsData])
 
-  const toggle = (key) => {
+  const toggle = async (key) => {
     const updated = { ...sections, [key]: !sections[key] }
     setSections(updated)
-    localStorage.setItem(SECTIONS_KEY, JSON.stringify(updated))
+    await saveSections(updated)
     showNotification('Section updated', 'success')
   }
 
   const sectionList = [
     { key: 'heroSlider', label: 'Hero Slider', desc: 'Main carousel on homepage' },
     { key: 'topBanner', label: 'Top Promo Banner', desc: 'Above navbar announcement bar' },
+    { key: 'shopByCategory', label: 'Shop by Category', desc: 'Category cards (hastweave-style)' },
+    { key: 'shopByFabric', label: 'Shop by Fabric', desc: 'Fabric type cards (Silk, Cotton, etc.)' },
     { key: 'categories', label: 'Collection List', desc: 'Home page collection cards section' },
+    { key: 'ourStory', label: 'Our Story', desc: 'RANGIKA-style brand narrative section' },
     { key: 'deals', label: 'Deals Section', desc: 'Special offers block' },
     { key: 'newArrivals', label: 'New Arrivals', desc: 'Latest products grid' },
     { key: 'featured', label: 'Featured Products', desc: 'Highlighted products' },

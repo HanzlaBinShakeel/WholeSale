@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
+import { useProducts } from '../hooks/useData'
 import { useWishlist } from '../context/WishlistContext'
 import { FiHeart, FiFilter, FiChevronDown, FiGrid, FiList } from 'react-icons/fi'
 import ScrollReveal from '../components/ScrollReveal'
@@ -22,6 +23,11 @@ function Products() {
   const [products, setProducts] = useState(allProducts)
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all')
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('search') || '')
+    setSelectedCategory(searchParams.get('category') || 'all')
+  }, [searchParams])
   const [selectedSubCategory, setSelectedSubCategory] = useState('all')
   const [sortBy, setSortBy] = useState('default')
   const [priceBand, setPriceBand] = useState('all')
@@ -33,31 +39,12 @@ function Products() {
   const [pendingSort, setPendingSort] = useState('default')
   const [pendingPriceBand, setPendingPriceBand] = useState('all')
 
-  useEffect(() => {
-    let data = JSON.parse(localStorage.getItem('adminProducts') || '[]')
-    data = normalizeProducts(data)
-    localStorage.setItem('adminProducts', JSON.stringify(data))
-    setAllData(data)
-  }, [])
+  const { data: productsData } = useProducts()
 
   useEffect(() => {
-    const syncProducts = () => {
-      try {
-        const data = JSON.parse(localStorage.getItem('adminProducts') || '[]')
-        const normalized = normalizeProducts(data)
-        if (normalized.length) {
-          setAllData(normalized)
-          localStorage.setItem('adminProducts', JSON.stringify(normalized))
-        }
-      } catch (e) {}
-    }
-    window.addEventListener('storage', syncProducts)
-    const timer = window.setInterval(syncProducts, 5000)
-    return () => {
-      window.removeEventListener('storage', syncProducts)
-      window.clearInterval(timer)
-    }
-  }, [])
+    const data = productsData?.length ? normalizeProducts(productsData) : allProducts
+    setAllData(data && data.length ? data : allProducts)
+  }, [productsData])
 
   useEffect(() => {
     let filtered = allData

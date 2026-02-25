@@ -49,10 +49,13 @@ function Header() {
               </Link>
               {user && (
                 <>
-                  <Link to="/orders" className="nav-link">
+                  <Link to="/account" className="nav-link">
+                    My Account
+                  </Link>
+                  <Link to="/account/orders" className="nav-link">
                     My Orders
                   </Link>
-                  <Link to="/ledger" className="nav-link">
+                  <Link to="/account/ledger" className="nav-link">
                     Ledger
                   </Link>
                 </>

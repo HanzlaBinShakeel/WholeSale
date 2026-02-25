@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
+import { useOrders, useLedger, useAdvancePercent } from '../hooks/useData'
 import ScrollReveal from '../components/ScrollReveal'
 import './Cart.css'
 
@@ -10,10 +11,13 @@ function Cart() {
   const { cart, removeFromCart, updateQuantity, getTotal, clearCart } = useCart()
   const { isAuthenticated, user } = useAuth()
   const { showNotification } = useNotification()
+  const { data: ordersData, save: saveOrders } = useOrders()
+  const { data: ledgerData, save: saveLedger } = useLedger()
+  const { data: advancePercentValue } = useAdvancePercent()
   const navigate = useNavigate()
   const [orderNotes, setOrderNotes] = useState('')
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!isAuthenticated) {
       showNotification('Please login to place an order', 'warning')
       navigate('/login', { state: { from: '/cart' } })
@@ -26,7 +30,7 @@ function Cart() {
     }
 
     const total = getTotal()
-    const advancePercent = parseInt(localStorage.getItem('advancePercent') || '20', 10)
+    const advancePercent = advancePercentValue ?? 20
     const advanceAmount = Math.round(total * advancePercent / 100)
     const balancePending = total - advanceAmount
 
@@ -59,14 +63,13 @@ function Cart() {
     }
 
     // Save order
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]')
-    orders.unshift(order)
-    localStorage.setItem('orders', JSON.stringify(orders))
+    const orders = ordersData || []
+    const updatedOrders = [order, ...orders]
 
-    // Phase 3: Add bill to ledger for credit tracking
-    const ledger = JSON.parse(localStorage.getItem('ledger') || '[]')
+    // Add bill to ledger
+    const ledger = ledgerData || []
     const lastBal = ledger.length ? ledger[ledger.length - 1].balance : 0
-    ledger.push({
+    const ledgerEntry = {
       id: 'TXN-' + Date.now(),
       date: order.date,
       type: 'bill',
@@ -75,8 +78,10 @@ function Cart() {
       amount: total,
       balance: lastBal + total,
       notes: `Buyer: ${order.buyerName || 'N/A'}`
-    })
-    localStorage.setItem('ledger', JSON.stringify(ledger))
+    }
+
+    await saveOrders(updatedOrders)
+    await saveLedger([...ledger, ledgerEntry])
 
     // Clear cart
     clearCart()

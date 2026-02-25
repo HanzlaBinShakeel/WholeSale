@@ -1,3 +1,10 @@
+export const defaultFabricCategories = [
+  { id: 'fabric-silk', name: 'Silk', slug: 'silk', image: 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_2448copy2.jpg?v=1733226350', searchTerm: 'silk', order: 1, enabled: true },
+  { id: 'fabric-cotton', name: 'Cotton', slug: 'cotton', image: 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_1666copy2.jpg?v=1685443376', searchTerm: 'cotton', order: 2, enabled: true },
+  { id: 'fabric-chiffon', name: 'Chiffon', slug: 'chiffon', image: 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_0446copy2.jpg?v=1685447830', searchTerm: 'chiffon', order: 3, enabled: true },
+  { id: 'fabric-organza', name: 'Organza', slug: 'organza', image: 'https://cdn.shopify.com/s/files/1/0552/5291/0159/files/DSC_5334copy34_14.jpg?v=1695904023', searchTerm: 'organza', order: 4, enabled: true }
+]
+
 export const defaultCollections = [
   {
     id: 101,
